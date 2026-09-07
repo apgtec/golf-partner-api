@@ -1,0 +1,13 @@
+# Pin and tee positions for this round. Pins move daily.
+subscription Query(
+    $roundId: ID!
+) {
+    holeReferences(roundId: $roundId) {
+        hole
+        type
+        easting
+        northing
+        elevation
+        updatedAt
+    }
+}

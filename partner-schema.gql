@@ -1,0 +1,528 @@
+# Bolt6 golf data-exchange contract
+#
+# Contract version: 1.0.0-draft
+#
+# The normative field/type/nullability contract between Bolt6 and a golf data
+# provider. REFERENCE.md carries everything SDL cannot express: units, the
+# coordinate reference system, timestamp semantics, delivery guarantees, auth,
+# errors and versioning. INTEGRATION.md walks through each use case with
+# worked examples.
+#
+# Two directions:
+#   Query / Subscription  - Bolt6 publishes ball positions, pin and tee positions.
+#   Mutation              - you publish the scorecard: tournament, course, rounds,
+#                           groups, strokes.
+#
+# ---------------------------------------------------------------------------
+# Ids
+# ---------------------------------------------------------------------------
+#
+# Two kinds of id appear on this contract:
+#
+#   Bolt6 ids  (`id`, `roundId`, `playerId`, ...)  Opaque and stable, assigned
+#              by Bolt6. Use them for every reference you make, in reads and in
+#              writes.
+#   your ids   (`externalId`)  The key you assign to an entity you create. Bolt6
+#              stores it, uses it to make creation idempotent, and echoes it
+#              back on everything it publishes about that entity.
+#
+# Rule of thumb: our id for anything you refer to, your id for anything you
+# create. Every write returns the Bolt6 ids of what it created or updated,
+# paired with your externalId - keep that map on your side.
+
+# ---------------------------------------------------------------------------
+# Scalars
+# ---------------------------------------------------------------------------
+
+# ISO 8601 timestamp, always UTC, always with an explicit `Z`.
+# Example: "2025-10-27T20:16:03.076Z"
+scalar DateTime
+
+# ---------------------------------------------------------------------------
+# Enumerations
+#
+# Treat every enum as open: a minor contract revision may add members, and
+# your client must not fail on a value it does not recognise.
+# ---------------------------------------------------------------------------
+
+enum Hemisphere {
+  NORTH
+  SOUTH
+}
+
+# The course surface a ball lies on.
+# Unrelated to `Course.utmZone`, which is a UTM grid zone.
+enum Surface {
+  OFW    # Fairway
+  OFW_E  # Fairway edge
+  ORO    # Rough
+  OR1    # First cut rough
+  OR2    # Second cut rough
+  OIR    # Intermediate rough
+  OGR    # Green
+  OGS    # Greenside bunker
+  OFB    # Fairway bunker
+  OWB    # Waste bunker
+  OGB    # Grass bunker
+  OCO    # Collar / margin
+  OTB    # Tee boxes
+  ONA    # Native area
+  OWA    # Water
+  OWS    # Walk strip
+  OPS    # Pine straw / mulch
+  ORK    # Rocks
+  ODO    # Dirt
+  OPT    # Path
+  OCA    # Cart path
+  OTO    # Tree outline
+  OBR    # Bridge
+  OBD    # Building
+  OBO    # Bush / shrubs
+  OSS    # Step
+  OLN    # Landscaping
+  OWL    # Wall
+  OTH    # Other
+}
+
+# Position relative to the hole's centre line. Only meaningful on fairways and
+# greens, and null whenever it has not been determined.
+enum SubSurface {
+  FL     # Fairway left
+  FR     # Fairway right
+  GFL    # Green front left
+  GFR    # Green front right
+  GBL    # Green back left
+  GBR    # Green back right
+}
+
+# How much is known about a ball's location.
+enum PositionState {
+  # Coordinates confirmed. easting/northing/elevation are non-null.
+  VERIFIED
+  # Coordinates provisional, not yet confirmed. easting/northing/elevation are non-null.
+  PREDICTED
+  # Surface known, coordinates not. easting/northing/elevation are ALL null.
+  ZONED
+  # Coordinates corrected manually. easting/northing/elevation are non-null.
+  OVERRIDE
+}
+
+# Where a player is in the act of playing a stroke.
+enum StrokeStatus {
+  READY           # addressed, not yet over the ball
+  OVER_THE_BALL   # standing over the ball
+  HIT             # stroke played
+}
+
+enum StrokeKind {
+  NORMAL
+  PROVISIONAL
+  PENALTY
+  DROP
+}
+
+# A reference point on a hole, for a given round.
+enum HoleReferenceType {
+  PIN
+  TEE
+}
+
+# The kind of entity an id refers to, in write results.
+enum EntityKind {
+  TOURNAMENT
+  COURSE
+  ROUND
+  GROUP
+  PLAYER
+  STROKE
+}
+
+# ---------------------------------------------------------------------------
+# Published types (Bolt6 -> you)
+# ---------------------------------------------------------------------------
+
+# One BallPosition per stroke: where that stroke's ball is, as currently known.
+# Its identity is `strokeId`; any change - a better fix, a correction, a
+# retraction - arrives as the same strokeId with a higher `revision`.
+# Coordinates are UTM metres in the CRS declared by `Course.utmZone` /
+# `Course.utmHemisphere`.
+#
+# NULLABILITY: easting, northing and elevation are null together whenever
+# `state` is ZONED - the surface is known but the coordinates are not. This is
+# the normal state of a stroke before the ball is located, not an edge case.
+# A client that assumes coordinates are always present will fail on the first
+# zone-only stroke. `surface` is always populated.
+type BallPosition {
+  # Stream cursor. Increases on every change to this stroke's position, so
+  # streaming on `revision` delivers corrections and retractions too. Persist
+  # the highest value you have processed and resume from it.
+  revision: Int!
+
+  # Bolt6 ids, always present. strokeId is the identity of this record.
+  strokeId: ID!
+  playerId: ID!
+  groupId: ID
+  # Your ids, echoed back when you created the entity. A stroke you did not
+  # report has no strokeExternalId.
+  strokeExternalId: ID
+  playerExternalId: ID
+  groupExternalId: ID
+
+  strokeNum: Int!
+  strokeKind: StrokeKind
+
+  hole: Int!
+  # Position of this hole in the player's round: 1 for the first hole they
+  # played. Differs from `hole` on shotgun or back-nine starts.
+  holeOrder: Int
+
+  easting: Float
+  northing: Float
+  elevation: Float
+
+  surface: Surface!
+  subSurface: SubSurface
+
+  state: PositionState!
+
+  inTheHole: Boolean
+
+  # True once the stroke has been withdrawn. Delivered as a new `revision` of
+  # the same `strokeId`, never as a silent removal. Treat it as authoritative
+  # and remove the position from display.
+  retracted: Boolean!
+
+  # When the observation was made, on the observing system's own clock.
+  observedAt: DateTime!
+  # When Bolt6 recorded it.
+  recordedAt: DateTime!
+}
+
+# A reference point on a hole, for a specific round. Pin positions move
+# daily; tee markers move between rounds.
+type HoleReference {
+  hole: Int!
+  type: HoleReferenceType!
+  easting: Float!
+  northing: Float!
+  elevation: Float!
+  updatedAt: DateTime!
+}
+
+# The course as you reported it, plus the CRS declaration that makes every
+# coordinate in this contract interpretable.
+type Course {
+  id: ID!
+  externalId: ID
+  name: String!
+
+  # The coordinate reference system for every position in this contract:
+  # standard UTM on WGS84, in metres.
+  utmZone: Int!
+  utmHemisphere: Hemisphere!
+  # Horizontal CRS. Convenience: 32600 + utmZone north, 32700 + utmZone south.
+  epsg: Int!
+  # Vertical CRS for `elevation`: EGM2008 orthometric height in metres,
+  # EPSG:3855. Pair it with `epsg` for a full 3D CRS.
+  verticalEpsg: Int!
+
+  # Scorecard totals, exactly as you reported them.
+  par: Int
+  frontPar: Int
+  backPar: Int
+  # Total length in metres.
+  length: Float
+
+  holes: [Hole!]!
+}
+
+# Scorecard facts, exactly as you reported them. Bolt6 stores and republishes
+# them verbatim.
+type Hole {
+  number: Int!
+  par: Int
+  # Metres.
+  length: Float
+}
+
+type Player {
+  id: ID!
+  externalId: ID
+  firstName: String
+  lastName: String
+  country: String
+  hometown: String
+  isAmateur: Boolean
+  isCaptain: Boolean
+  organization: String
+  organizationName: String
+
+  # Apparel colours for broadcast graphics, as 0xRRGGBB. Per round, since
+  # players change outfits daily. Alpha is not carried.
+  hatColor: Int
+  shirtColor: Int
+  pantsColor: Int
+}
+
+type GroupPlayer {
+  player: Player!
+  order: Int
+}
+
+type Group {
+  id: ID!
+  externalId: ID
+  startHole: Int
+  startHoleOrder: Int
+  segment: String
+  # Scheduled tee time, and the adjusted time after any delay.
+  teeTime: DateTime
+  teeTimeAdjusted: DateTime
+  players: [GroupPlayer!]!
+}
+
+type Round {
+  id: ID!
+  externalId: ID
+  # Not guaranteed to be 1..N; playoff rounds use out-of-band numbers.
+  num: Int!
+  status: String
+  format: String
+  teamFormat: String
+  isTeamPlayoff: Boolean
+  course: Course!
+  tournament: Tournament!
+}
+
+type Tournament {
+  id: ID!
+  externalId: ID
+  name: String!
+  status: String
+  # The round currently in play, by Bolt6 round id.
+  currentRoundId: ID
+  startDate: DateTime
+  endDate: DateTime
+}
+
+# ---------------------------------------------------------------------------
+# Write inputs (you -> Bolt6)
+# ---------------------------------------------------------------------------
+#
+# Parents are referenced by Bolt6 id (`tournamentId`, `courseId`, `roundId`,
+# `playerId`); the entity being created carries your `externalId`. Every
+# mutation is an idempotent upsert keyed by that externalId within its parent,
+# so re-sending an identical payload is a no-op and retries are always safe.
+# Scalars are properly typed: numbers are numbers, booleans are booleans.
+#
+# Setup runs in dependency order, each step returning the ids the next needs:
+#   upsertTournament -> upsertCourse -> upsertRounds -> upsertGroups -> upsertStroke
+
+input TournamentInput {
+  # Your id for the tournament.
+  externalId: ID!
+  name: String!
+  status: String
+  # The round currently in play, by Bolt6 round id (from upsertRounds). Set it
+  # by re-sending the tournament once rounds exist.
+  currentRoundId: ID
+  startDate: DateTime
+  endDate: DateTime
+}
+
+input HoleInput {
+  number: Int!
+  par: Int
+  # Metres.
+  length: Float
+}
+
+input CourseInput {
+  # Bolt6 id from upsertTournament.
+  tournamentId: ID!
+  # Your id for the course.
+  externalId: ID!
+  name: String!
+  # Required. The UTM grid zone the course sits in, and its hemisphere. This
+  # is what makes every coordinate in both directions interpretable.
+  utmZone: Int!
+  utmHemisphere: Hemisphere!
+  par: Int
+  frontPar: Int
+  backPar: Int
+  # Total length in metres.
+  length: Float
+  holes: [HoleInput!]!
+}
+
+input RoundInput {
+  # Your id for the round.
+  externalId: ID!
+  # Round number. NOT required to be 1..N - playoff rounds may use out-of-band
+  # numbers. Order rounds by this value; do not index by it.
+  num: Int!
+  # Bolt6 id from upsertCourse.
+  courseId: ID
+  status: String
+  # Play format, e.g. stroke play / match play, and the team variant if any.
+  format: String
+  teamFormat: String
+  isTeamPlayoff: Boolean
+}
+
+input RoundsInput {
+  # Bolt6 id from upsertTournament.
+  tournamentId: ID!
+  # Each listed round is upserted. Rounds not listed are left untouched.
+  rounds: [RoundInput!]!
+}
+
+input PlayerInput {
+  # Your id for the player. Players are per tournament: the same externalId in
+  # another round's groups resolves to the same player.
+  externalId: ID!
+  firstName: String
+  lastName: String
+  country: String
+  hometown: String
+  isAmateur: Boolean
+  isCaptain: Boolean
+  organization: String
+  organizationName: String
+  order: Int
+  # Apparel colours as 0xRRGGBB.
+  hatColor: Int
+  shirtColor: Int
+  pantsColor: Int
+}
+
+input GroupInput {
+  # Your id for the group.
+  externalId: ID!
+  startHole: Int
+  startHoleOrder: Int
+  segment: String
+  teeTime: DateTime
+  teeTimeAdjusted: DateTime
+  players: [PlayerInput!]!
+}
+
+input GroupsInput {
+  # Bolt6 id from upsertRounds.
+  roundId: ID!
+  # Each listed group is upserted. Groups not listed are left untouched, so
+  # sending a partial list never deletes anything.
+  groups: [GroupInput!]!
+}
+
+# A stroke a player is about to play, or has just played.
+#
+# This describes stroke state; `fromSurface` is the surface the ball lies on.
+input StrokeInput {
+  # Bolt6 ids from upsertRounds and upsertGroups.
+  roundId: ID!
+  groupId: ID
+  playerId: ID!
+  # Your id for the stroke.
+  externalId: ID!
+
+  hole: Int!
+  # Position of this hole in the player's round: 1 for the first hole they
+  # played. Differs from `hole` on shotgun or back-nine starts.
+  holeOrder: Int
+  strokeNum: Int!
+  # Optional; defaults to NORMAL.
+  kind: StrokeKind
+  # Optional; defaults to HIT. Send it only if your system has pre-shot events
+  # (READY, OVER_THE_BALL) to report.
+  status: StrokeStatus
+
+  fromSurface: Surface
+  club: String
+
+  # Stroke lifecycle timestamps. At least one must be present; Bolt6 uses
+  # hitAt, else overBallAt, else createdAt as the stroke time.
+  createdAt: DateTime
+  overBallAt: DateTime
+  hitAt: DateTime
+}
+
+input RetractStrokeInput {
+  # Bolt6 id from upsertStroke.
+  strokeId: ID!
+}
+
+# One created-or-updated entity: your id paired with the Bolt6 id you use from
+# now on.
+type IdRef {
+  kind: EntityKind!
+  externalId: ID!
+  id: ID!
+}
+
+# One item of a batch that was not stored, and why. Other items in the same
+# batch were stored normally.
+type Rejection {
+  kind: EntityKind!
+  externalId: ID!
+  message: String!
+}
+
+# Result of a write.
+#
+# `accepted` is true when nothing was rejected. `message` explains a call-level
+# rejection (an unknown parent id, for instance), in which case nothing was
+# stored. `ids` lists every entity stored by this call; `rejected` lists batch
+# items that were not. A rejected payload must NOT be retried unchanged -
+# `message` says what to fix. Transport and auth failures surface as GraphQL
+# errors instead, and those should be retried with backoff.
+type WriteResult {
+  accepted: Boolean!
+  message: String
+  ids: [IdRef!]!
+  rejected: [Rejection!]!
+}
+
+# ---------------------------------------------------------------------------
+# Roots
+# ---------------------------------------------------------------------------
+
+type Query {
+  ballPositions(roundId: ID!, hole: Int, limit: Int, offset: Int): [BallPosition!]!
+  holeReferences(roundId: ID!, type: HoleReferenceType): [HoleReference!]!
+  course(roundId: ID!): Course
+  round(id: ID!): Round
+  groups(roundId: ID!): [Group!]!
+  players(tournamentId: ID!): [Player!]!
+  tournament(id: ID!): Tournament
+}
+
+type Subscription {
+  # Current best position per stroke. State semantics: on connect you receive
+  # the current set, then updates as they change.
+  ballPositions(roundId: ID!, hole: Int): [BallPosition!]!
+
+  # Every position revision as it lands, in `revision` order, resuming after
+  # `afterRevision`. Queue semantics: resumable and at-least-once. Pass 0 to
+  # replay a round from the beginning.
+  ballPositionEvents(roundId: ID!, afterRevision: Int!, batchSize: Int): [BallPosition!]!
+
+  holeReferences(roundId: ID!): [HoleReference!]!
+  course(roundId: ID!): Course
+  groups(roundId: ID!): [Group!]!
+}
+
+type Mutation {
+  upsertTournament(input: TournamentInput!): WriteResult!
+  upsertCourse(input: CourseInput!): WriteResult!
+  upsertRounds(input: RoundsInput!): WriteResult!
+  upsertGroups(input: GroupsInput!): WriteResult!
+  upsertStroke(input: StrokeInput!): WriteResult!
+  retractStroke(input: RetractStrokeInput!): WriteResult!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}

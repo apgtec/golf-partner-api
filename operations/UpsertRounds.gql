@@ -1,0 +1,11 @@
+# Rounds of a tournament, each on a course. Needs the Bolt6 tournamentId and
+# courseIds from the previous steps; returns the round ids every read and every
+# stroke is keyed by. Rounds not listed are left untouched.
+mutation Query($input: RoundsInput!) {
+    upsertRounds(input: $input) {
+        accepted
+        message
+        ids { kind externalId id }
+        rejected { kind externalId message }
+    }
+}

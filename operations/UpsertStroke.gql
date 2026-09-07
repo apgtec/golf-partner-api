@@ -1,0 +1,15 @@
+# A stroke a player is about to play, or has just played. Needs the Bolt6
+# roundId, groupId and playerId; carries your externalId for the stroke and
+# returns its Bolt6 id (needed for retractStroke).
+#
+# This reports stroke STATE, not ball position: fromSurface is the surface the
+# ball lies on. Send one per stroke at HIT (the default), or one per status
+# change if you have pre-shot events; resending is safe.
+mutation Query($input: StrokeInput!) {
+    upsertStroke(input: $input) {
+        accepted
+        message
+        ids { kind externalId id }
+        rejected { kind externalId message }
+    }
+}

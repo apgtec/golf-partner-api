@@ -1,0 +1,28 @@
+# Current best position per stroke. State semantics.
+subscription Query(
+    $roundId: ID!
+    $hole: Int
+) {
+    ballPositions(roundId: $roundId, hole: $hole) {
+        revision
+        strokeId
+        strokeExternalId
+        strokeNum
+        playerId
+        playerExternalId
+        groupId
+        groupExternalId
+        hole
+        holeOrder
+        easting
+        northing
+        elevation
+        surface
+        subSurface
+        state
+        inTheHole
+        retracted
+        observedAt
+        recordedAt
+    }
+}

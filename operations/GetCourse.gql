@@ -1,0 +1,24 @@
+# The course and, critically, the CRS declaration for every coordinate on this
+# contract. Fetch once per round before consuming positions.
+query Query(
+    $roundId: ID!
+) {
+    course(roundId: $roundId) {
+        id
+        externalId
+        name
+        utmZone
+        utmHemisphere
+        epsg
+        verticalEpsg
+        par
+        frontPar
+        backPar
+        length
+        holes {
+            number
+            par
+            length
+        }
+    }
+}

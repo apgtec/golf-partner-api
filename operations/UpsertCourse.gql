@@ -1,0 +1,11 @@
+# Course, holes, par and hole length (metres), and the UTM zone the course sits
+# in. Needs the Bolt6 tournamentId from upsertTournament; returns the course id
+# you use in upsertRounds. Par and length are yours; Bolt6 stores them verbatim.
+mutation Query($input: CourseInput!) {
+    upsertCourse(input: $input) {
+        accepted
+        message
+        ids { kind externalId id }
+        rejected { kind externalId message }
+    }
+}

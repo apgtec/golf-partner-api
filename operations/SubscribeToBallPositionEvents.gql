@@ -1,0 +1,35 @@
+# Resumable ball-position stream. Queue semantics.
+#
+# Pass afterRevision: 0 to replay a round from the beginning; otherwise pass
+# the highest revision you have durably processed. Revisions increase across
+# both inserts and updates, so corrections and retractions arrive here too -
+# check `retracted` on every delivery.
+subscription Query(
+    $roundId: ID!
+    $afterRevision: Int!
+    $batchSize: Int
+) {
+    ballPositionEvents(roundId: $roundId, afterRevision: $afterRevision, batchSize: $batchSize) {
+        revision
+        strokeId
+        strokeExternalId
+        strokeNum
+        strokeKind
+        playerId
+        playerExternalId
+        groupId
+        groupExternalId
+        hole
+        holeOrder
+        easting
+        northing
+        elevation
+        surface
+        subSurface
+        state
+        inTheHole
+        retracted
+        observedAt
+        recordedAt
+    }
+}

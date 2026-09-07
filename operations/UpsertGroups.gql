@@ -1,0 +1,11 @@
+# Groups (pairings) and their players for a round. Needs the Bolt6 roundId;
+# returns group and player ids for upsertStroke. Groups not listed are left
+# untouched.
+mutation Query($input: GroupsInput!) {
+    upsertGroups(input: $input) {
+        accepted
+        message
+        ids { kind externalId id }
+        rejected { kind externalId message }
+    }
+}

@@ -1,0 +1,31 @@
+query Query(
+    $roundId: ID!
+) {
+    groups(roundId: $roundId) {
+        id
+        externalId
+        startHole
+        startHoleOrder
+        segment
+        teeTime
+        teeTimeAdjusted
+        players {
+            order
+            player {
+                id
+                externalId
+                firstName
+                lastName
+                country
+                hometown
+                isAmateur
+                isCaptain
+                organization
+                organizationName
+                hatColor
+                shirtColor
+                pantsColor
+            }
+        }
+    }
+}

@@ -1,0 +1,27 @@
+name: docs
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install "mkdocs<2" mkdocs-material mike graphql-core
+      - name: Validate operations against the schema
+        run: python scripts/validate.py
+      - name: Build
+        run: mkdocs build --strict
+      - name: Publish version
+        if: github.event_name == 'push'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          mike deploy --push --update-aliases 1.0 latest
+          mike set-default --push latest

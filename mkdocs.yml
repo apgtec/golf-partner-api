@@ -1,0 +1,45 @@
+site_name: Bolt6 Golf Data API
+site_description: Contract and integration guide for exchanging golf ball positions and scorecard data with Bolt6
+site_url: https://apgtec.github.io/golf-partner-api/
+repo_url: https://github.com/apgtec/golf-partner-api
+edit_uri: edit/main/docs/
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - content.code.copy
+    - search.suggest
+  palette:
+    - scheme: default
+      primary: black
+      accent: green
+      toggle: { icon: material/brightness-7, name: Dark mode }
+    - scheme: slate
+      primary: black
+      accent: green
+      toggle: { icon: material/brightness-4, name: Light mode }
+nav:
+  - Start here: index.md
+  - Integration guide: integration.md
+  - Reference: reference.md
+  - Schema: schema.md
+  - Operations: operations.md
+markdown_extensions:
+  - tables
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path: ['.']
+      check_paths: true
+extra:
+  version:
+    provider: mike
+validation:
+  anchors: warn
+  links:
+    absolute_links: relative_to_docs

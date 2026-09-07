@@ -1,0 +1,1847 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Contract and integration guide for exchanging golf ball positions and scorecard data with Bolt6">
+      
+      
+      
+        <link rel="canonical" href="https://apgtec.github.io/golf-partner-api/1.0/integration/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../reference/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Integration guide - Bolt6 Golf Data API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#integration-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Bolt6 Golf Data API" class="md-header__button md-logo" aria-label="Bolt6 Golf Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bolt6 Golf Data API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Integration guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="green"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="green"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/apgtec/golf-partner-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Start here
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Integration guide
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reference/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../schema/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Schema
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../operations/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Operations
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Bolt6 Golf Data API" class="md-nav__button md-logo" aria-label="Bolt6 Golf Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Bolt6 Golf Data API
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/apgtec/golf-partner-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ids-ours-for-references-yours-for-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ids: ours for references, yours for creation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-tournament" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Tournament
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-course-and-rounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Course and rounds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-groups-and-players" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Groups and players
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-reporting-stroke-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Reporting stroke state
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-receiving-ball-positions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Receiving ball positions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Receiving ball positions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ballpositionevents-the-event-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ballPositionEvents — the event log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ballpositions-current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ballPositions — current state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-positions-you-get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which positions you get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-handling-zone-only-positions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Handling zone-only positions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-corrections-and-retractions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Corrections and retractions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Corrections and retractions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#corrections-you-receive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Corrections you receive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retractions-you-receive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retractions you receive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retractions-you-send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retractions you send
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-computing-distances-on-your-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Computing distances on your side
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-pin-and-tee-positions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Pin and tee positions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-converting-to-latitudelongitude" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Converting to latitude/longitude
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-reconnecting-and-resuming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Reconnecting and resuming
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-replay-and-backfill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Replay and backfill
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Error handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Error handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rejected-payloads-do-not-retry-unchanged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rejected payloads — do not retry unchanged
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transport-and-auth-errors-retry-with-backoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transport and auth errors — retry with backoff
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ids-ours-for-references-yours-for-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ids: ours for references, yours for creation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-tournament" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Tournament
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-course-and-rounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Course and rounds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-groups-and-players" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Groups and players
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-reporting-stroke-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Reporting stroke state
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-receiving-ball-positions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Receiving ball positions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Receiving ball positions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ballpositionevents-the-event-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ballPositionEvents — the event log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ballpositions-current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ballPositions — current state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-positions-you-get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which positions you get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-handling-zone-only-positions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Handling zone-only positions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-corrections-and-retractions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Corrections and retractions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Corrections and retractions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#corrections-you-receive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Corrections you receive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retractions-you-receive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retractions you receive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retractions-you-send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retractions you send
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-computing-distances-on-your-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Computing distances on your side
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-pin-and-tee-positions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Pin and tee positions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-converting-to-latitudelongitude" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Converting to latitude/longitude
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-reconnecting-and-resuming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Reconnecting and resuming
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-replay-and-backfill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Replay and backfill
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Error handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Error handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rejected-payloads-do-not-retry-unchanged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rejected payloads — do not retry unchanged
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transport-and-auth-errors-retry-with-backoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transport and auth errors — retry with backoff
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="integration-guide">Integration guide<a class="headerlink" href="#integration-guide" title="Permanent link">&para;</a></h1>
+<p>Every use case, in the order you will implement them, with the payloads you send and receive.
+Start with <a href="../"><code>README.md</code></a>; settle details in <a href="../reference/">Reference</a>.</p>
+<p>Examples follow one tournament through setup. Your ids are <code>T-2026-07</code>, <code>C-1</code>, <code>R-3</code>, <code>G-8</code>,
+<code>P-231</code>, <code>S-8E8E254E</code>; the Bolt6 ids Bolt6 assigns to them along the way are <code>88</code>, <code>12</code>, <code>1042</code>,
+<code>8</code>, <code>231</code>, <code>88301</code>. The course is in <strong>UTM zone 56, southern hemisphere</strong> (EPSG:32756). All
+coordinates are metres.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Use case</th>
+<th>Direction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><a href="#1-tournament">Tournament</a></td>
+<td>you → Bolt6</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="#2-course-and-rounds">Course and rounds</a></td>
+<td>you → Bolt6</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="#3-groups-and-players">Groups and players</a></td>
+<td>you → Bolt6</td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="#4-reporting-stroke-state">Reporting stroke state</a></td>
+<td>you → Bolt6</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="#5-receiving-ball-positions">Receiving ball positions</a></td>
+<td>Bolt6 → you</td>
+</tr>
+<tr>
+<td>6</td>
+<td><a href="#6-handling-zone-only-positions">Handling zone-only positions</a></td>
+<td>Bolt6 → you</td>
+</tr>
+<tr>
+<td>7</td>
+<td><a href="#7-corrections-and-retractions">Corrections and retractions</a></td>
+<td>both</td>
+</tr>
+<tr>
+<td>8</td>
+<td><a href="#8-computing-distances-on-your-side">Computing distances on your side</a></td>
+<td>your side</td>
+</tr>
+<tr>
+<td>9</td>
+<td><a href="#9-pin-and-tee-positions">Pin and tee positions</a></td>
+<td>Bolt6 → you</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="#10-converting-to-latitudelongitude">Converting to latitude/longitude</a></td>
+<td>your side</td>
+</tr>
+<tr>
+<td>11</td>
+<td><a href="#11-reconnecting-and-resuming">Reconnecting and resuming</a></td>
+<td>your side</td>
+</tr>
+<tr>
+<td>12</td>
+<td><a href="#12-replay-and-backfill">Replay and backfill</a></td>
+<td>Bolt6 → you</td>
+</tr>
+<tr>
+<td>13</td>
+<td><a href="#13-error-handling">Error handling</a></td>
+<td>your side</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ids-ours-for-references-yours-for-creation">Ids: ours for references, yours for creation<a class="headerlink" href="#ids-ours-for-references-yours-for-creation" title="Permanent link">&para;</a></h2>
+<p>Two kinds of id appear everywhere below, and the rule is simple:</p>
+<ul>
+<li><strong>Anything you refer to, you refer to by its Bolt6 id</strong> — <code>tournamentId</code>, <code>courseId</code>, <code>roundId</code>,
+  <code>groupId</code>, <code>playerId</code>, <code>strokeId</code>, in writes and in reads.</li>
+<li><strong>Anything you create carries your own <code>externalId</code>.</strong> Bolt6 stores it, uses it to make creation
+  idempotent (a retry after a lost response cannot create a duplicate), and echoes it back on
+  everything it publishes about that entity.</li>
+</ul>
+<p><strong>Every write returns the Bolt6 ids of what it stored, paired with your <code>externalId</code></strong>, in
+<code>ids: [{kind, externalId, id}]</code>. Keep that map on your side — it is the only bookkeeping this
+integration asks of you, and setup produces it naturally:</p>
+<div class="highlight"><pre><span></span><code>upsertTournament  ─▶ tournamentId
+upsertCourse      ─▶ courseId          (needs tournamentId)
+upsertRounds      ─▶ roundIds          (needs tournamentId, courseId)
+upsertGroups      ─▶ groupIds, playerIds   (needs roundId)
+upsertStroke      ─▶ strokeId          (needs roundId, groupId, playerId)
+</code></pre></div>
+<p>Each step needs ids from the one before, so run setup in that order, and re-send whenever
+something changes.</p>
+<hr />
+<h2 id="1-tournament">1. Tournament<a class="headerlink" href="#1-tournament" title="Permanent link">&para;</a></h2>
+<p>Send once before the tournament, and again whenever status changes.</p>
+<p><code>operations/UpsertTournament.gql</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"T-2026-07"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Sydney Invitational"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IN_PROGRESS"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"startDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-12T00:00:00Z"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"endDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-15T00:00:00Z"</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"upsertTournament"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TOURNAMENT"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"T-2026-07"</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>88</code> is your <code>tournamentId</code> from here on. <code>status</code> is free text passed through unchanged, so use
+your own vocabulary consistently.</p>
+<p><code>currentRoundId</code> names the round in play by its Bolt6 id. You will not have round ids until
+<a href="#2-course-and-rounds">use case 2</a>, so set it by re-sending the tournament once rounds exist — the
+upsert is idempotent, so that is safe at any time.</p>
+<hr />
+<h2 id="2-course-and-rounds">2. Course and rounds<a class="headerlink" href="#2-course-and-rounds" title="Permanent link">&para;</a></h2>
+<p>Two calls, in this order: the course (which declares the coordinate system), then the rounds played
+on it. Send both before any stroke, and re-send whenever they change (a round opens, a playoff is
+added).</p>
+<p><code>operations/UpsertCourse.gql</code> — with the <code>tournamentId</code> from use case 1:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"tournamentId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"C-1"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Moore Park"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"utmZone"</span><span class="p">:</span><span class="w"> </span><span class="mi">56</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"utmHemisphere"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SOUTH"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"par"</span><span class="p">:</span><span class="w"> </span><span class="mi">71</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"frontPar"</span><span class="p">:</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"backPar"</span><span class="p">:</span><span class="w"> </span><span class="mi">36</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mf">6532.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"holes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"par"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mf">370.3</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"par"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mf">132.6</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"par"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mf">481.0</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"upsertCourse"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"COURSE"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"C-1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><strong><code>length</code> is metres.</strong> <code>6532.0</code> m, not <code>7143</code> yards. It is stored verbatim, so a yardage sent
+  here will be published as though it were metres.</li>
+<li><strong><code>utmZone</code> / <code>utmHemisphere</code> are required.</strong> Everything positional in both directions is
+  expressed in this CRS. If you do not know the zone:
+  <code>zone = floor((longitude + 180) / 6) + 1</code>, hemisphere from the sign of the latitude.</li>
+<li>Par is optional but recommended; we pass it through to downstream consumers.</li>
+</ul>
+<p>Now the rounds, each pointing at a course by its Bolt6 id:</p>
+<p><code>operations/UpsertRounds.gql</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"tournamentId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"rounds"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R-1"</span><span class="p">,</span><span class="w">  </span><span class="nt">"num"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">   </span><span class="nt">"courseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12"</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"COMPLETE"</span><span class="p">,</span><span class="w">    </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STROKE"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R-2"</span><span class="p">,</span><span class="w">  </span><span class="nt">"num"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">   </span><span class="nt">"courseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12"</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"COMPLETE"</span><span class="p">,</span><span class="w">    </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STROKE"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R-3"</span><span class="p">,</span><span class="w">  </span><span class="nt">"num"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">   </span><span class="nt">"courseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12"</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IN_PROGRESS"</span><span class="p">,</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STROKE"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R-PO"</span><span class="p">,</span><span class="w"> </span><span class="nt">"num"</span><span class="p">:</span><span class="w"> </span><span class="mi">301</span><span class="p">,</span><span class="w"> </span><span class="nt">"courseId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12"</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PENDING"</span><span class="p">,</span><span class="w">     </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STROKE"</span><span class="p">,</span><span class="w"> </span><span class="nt">"isTeamPlayoff"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"upsertRounds"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ROUND"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R-1"</span><span class="p">,</span><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1040"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ROUND"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R-2"</span><span class="p">,</span><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1041"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ROUND"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R-3"</span><span class="p">,</span><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1042"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ROUND"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R-PO"</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1043"</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><strong>The <code>roundId</code>s are the most important ids you will store.</strong> Every read, every group, every
+  stroke is keyed by one — <code>1042</code> is round <code>R-3</code> for the rest of this guide.</li>
+<li><strong><code>num</code> need not be <code>1..N</code>.</strong> The playoff round is <code>301</code>. Order rounds by <code>num</code>; never index by
+  it or assume a range.</li>
+<li><code>status</code> and <code>format</code> are free text passed through unchanged, so use your own vocabulary
+  consistently.</li>
+</ul>
+<p>Read the course back by round to confirm the CRS and cache <code>epsg</code>:</p>
+<p><code>operations/GetCourse.gql</code> — <code>{ "roundId": "1042" }</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"course"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"C-1"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Moore Park"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"utmZone"</span><span class="p">:</span><span class="w"> </span><span class="mi">56</span><span class="p">,</span><span class="w"> </span><span class="nt">"utmHemisphere"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SOUTH"</span><span class="p">,</span><span class="w"> </span><span class="nt">"epsg"</span><span class="p">:</span><span class="w"> </span><span class="mi">32756</span><span class="p">,</span><span class="w"> </span><span class="nt">"verticalEpsg"</span><span class="p">:</span><span class="w"> </span><span class="mi">3855</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"par"</span><span class="p">:</span><span class="w"> </span><span class="mi">71</span><span class="p">,</span><span class="w"> </span><span class="nt">"frontPar"</span><span class="p">:</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span><span class="w"> </span><span class="nt">"backPar"</span><span class="p">:</span><span class="w"> </span><span class="mi">36</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mf">6532.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"holes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"par"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mf">481.0</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="3-groups-and-players">3. Groups and players<a class="headerlink" href="#3-groups-and-players" title="Permanent link">&para;</a></h2>
+<p>Send when the draw is published, and again on any change (a withdrawal, a tee-time delay).</p>
+<p><code>operations/UpsertGroups.gql</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"roundId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1042"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"groups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"G-8"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"startHole"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"startHoleOrder"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"segment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AM"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"teeTime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T23:10:00Z"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"teeTimeAdjusted"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T23:38:00Z"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"players"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-231"</span><span class="p">,</span><span class="w"> </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tom"</span><span class="p">,</span><span class="w"> </span><span class="nt">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Walsh"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NIR"</span><span class="p">,</span><span class="w"> </span><span class="nt">"hometown"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Belfast"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"isAmateur"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"isCaptain"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"organization"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TEAM-A"</span><span class="p">,</span><span class="w"> </span><span class="nt">"organizationName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Team Alpha"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"hatColor"</span><span class="p">:</span><span class="w"> </span><span class="mi">16711680</span><span class="p">,</span><span class="w"> </span><span class="nt">"shirtColor"</span><span class="p">:</span><span class="w"> </span><span class="mi">16777215</span><span class="p">,</span><span class="w"> </span><span class="nt">"pantsColor"</span><span class="p">:</span><span class="w"> </span><span class="mi">255</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="p">{</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-244"</span><span class="p">,</span><span class="w"> </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ana"</span><span class="p">,</span><span class="w"> </span><span class="nt">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ruiz"</span><span class="p">,</span><span class="w"> </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ESP"</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"upsertGroups"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GROUP"</span><span class="p">,</span><span class="w">  </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"G-8"</span><span class="p">,</span><span class="w">   </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8"</span><span class="w">   </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PLAYER"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-231"</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"231"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PLAYER"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-244"</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"244"</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><strong>Keep the <code>ids</code>.</strong> <code>groupId</code> and <code>playerId</code> are what every <code>upsertStroke</code> needs.</li>
+<li><strong>Players are per tournament.</strong> The same player <code>externalId</code> in another round's groups resolves
+  to the same <code>playerId</code>, so the map you build in round 1 stays valid all week.</li>
+<li><strong>Colours are integers, <code>0xRRGGBB</code>.</strong> <code>16711680</code> is <code>0xFF0000</code>, red. Send decimal integers in
+  JSON, not hex strings. Alpha is not carried. They are per round, since players change outfits
+  daily.</li>
+<li><strong>Partial lists are safe at the group level.</strong> Each listed group is upserted; groups you omit are
+  left untouched, so sending a short list never deletes a group. Within a group, however, the
+  <code>players</code> list you send is authoritative: a player missing from it is removed from that group. A
+  group that fails validation appears in <code>rejected</code> with its <code>externalId</code> and the reason; the others
+  are still stored.</li>
+<li><code>teeTime</code> is scheduled, <code>teeTimeAdjusted</code> is after any delay. Send both when you have them.</li>
+</ul>
+<hr />
+<h2 id="4-reporting-stroke-state">4. Reporting stroke state<a class="headerlink" href="#4-reporting-stroke-state" title="Permanent link">&para;</a></h2>
+<p>This is the live inbound path. At minimum, send one upsert per stroke when it is played. If your
+system also has pre-shot events, send an upsert on each status change instead.</p>
+<p><strong>You send stroke state, not ball position.</strong> <code>fromSurface</code> is the surface the ball lies on; there
+are no coordinate fields on this input.</p>
+<p><code>operations/UpsertStroke.gql</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"roundId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1042"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"groupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"playerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"231"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S-8E8E254E"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"hole"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"holeOrder"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"strokeNum"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NORMAL"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OVER_THE_BALL"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"fromSurface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OFW"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"club"</span><span class="p">:</span><span class="w"> </span><span class="s2">"D"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T20:15:03.076Z"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"overBallAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T20:15:33.076Z"</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"upsertStroke"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STROKE"</span><span class="p">,</span><span class="w"> </span><span class="nt">"externalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S-8E8E254E"</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88301"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>roundId</code>, <code>groupId</code> and <code>playerId</code> come from the earlier upserts; <code>externalId</code> is your own id for
+this stroke, and <code>88301</code> is the <code>strokeId</code> you would use to retract it.</p>
+<p><strong>The minimum stroke report</strong> is <code>roundId</code>, <code>playerId</code>, <code>externalId</code>, <code>hole</code>, <code>strokeNum</code> and
+<code>hitAt</code>. <code>kind</code> defaults to <code>NORMAL</code> and <code>status</code> to <code>HIT</code>, so a system that only knows "a shot was
+played" sends exactly that and nothing more.</p>
+<p>If you do have pre-shot events, the full lifecycle is three upserts with the same <code>externalId</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>When</th>
+<th>Timestamps to include</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>READY</code></td>
+<td>player has reached the ball</td>
+<td><code>createdAt</code></td>
+</tr>
+<tr>
+<td><code>OVER_THE_BALL</code></td>
+<td>player is addressing it</td>
+<td><code>createdAt</code>, <code>overBallAt</code></td>
+</tr>
+<tr>
+<td><code>HIT</code></td>
+<td>stroke played</td>
+<td><code>createdAt</code>, <code>overBallAt</code>, <code>hitAt</code></td>
+</tr>
+</tbody>
+</table>
+<p>Because it is keyed on your <code>externalId</code> within the round, resending is safe and successive calls
+progressively enrich one stroke. <strong>At least one timestamp is required</strong>; we take <code>hitAt</code>, else <code>overBallAt</code>, else
+<code>createdAt</code> as the stroke time.</p>
+<p><code>holeOrder</code> is the position of this hole in the player's round — <code>13</code> here means the 13th hole
+they played, which is hole 7 because the group started on the back nine. Omit it if you do not
+track it.</p>
+<p>Set <code>kind</code> to <code>PENALTY</code> or <code>DROP</code> when it applies, so downstream consumers can distinguish those from
+a played stroke; <code>PROVISIONAL</code> is available too.</p>
+<p>You do not need to wait for a response before sending the next status — but do check <code>accepted</code>, and
+see <a href="#13-error-handling">Error handling</a>.</p>
+<hr />
+<h2 id="5-receiving-ball-positions">5. Receiving ball positions<a class="headerlink" href="#5-receiving-ball-positions" title="Permanent link">&para;</a></h2>
+<p>Two subscriptions over the same data. Use both: one for state, one for the event log.</p>
+<h3 id="ballpositionevents-the-event-log"><code>ballPositionEvents</code> — the event log<a class="headerlink" href="#ballpositionevents-the-event-log" title="Permanent link">&para;</a></h3>
+<p>Every revision in order, resumable. <strong>This is the one to build on.</strong></p>
+<p><code>operations/SubscribeToBallPositionEvents.gql</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"roundId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1042"</span><span class="p">,</span><span class="w"> </span><span class="nt">"afterRevision"</span><span class="p">:</span><span class="w"> </span><span class="mi">48120</span><span class="p">,</span><span class="w"> </span><span class="nt">"batchSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"ballPositionEvents"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"revision"</span><span class="p">:</span><span class="w"> </span><span class="mi">48122</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"strokeId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88301"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"playerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"231"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"groupId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"strokeExternalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S-8E8E254E"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"playerExternalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-231"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"groupExternalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"G-8"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"strokeNum"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"strokeKind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NORMAL"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"hole"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"holeOrder"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">335230.10</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247788.30</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">30.85</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OFW"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"subSurface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FR"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VERIFIED"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"inTheHole"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"retracted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"observedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T20:16:03.076Z"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"recordedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T20:16:03.410Z"</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The consuming loop, in full:</p>
+<div class="highlight"><pre><span></span><code><span class="n">cursor</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">get_cursor</span><span class="p">(</span><span class="n">round_id</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>        <span class="c1"># durable, per round</span>
+
+<span class="k">async</span> <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">subscribe</span><span class="p">(</span><span class="n">ballPositionEvents</span><span class="p">,</span> <span class="n">roundId</span><span class="o">=</span><span class="n">round_id</span><span class="p">,</span>
+                             <span class="n">afterRevision</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span> <span class="n">batchSize</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s2">"retracted"</span><span class="p">]:</span>
+            <span class="n">view</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">"strokeId"</span><span class="p">])</span>          <span class="c1"># withdrawal</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">view</span><span class="o">.</span><span class="n">upsert</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">"strokeId"</span><span class="p">],</span> <span class="n">p</span><span class="p">)</span>       <span class="c1"># first fix OR a better one</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="s2">"revision"</span><span class="p">])</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">set_cursor</span><span class="p">(</span><span class="n">round_id</span><span class="p">,</span> <span class="n">cursor</span><span class="p">)</span>          <span class="c1"># only after processing</span>
+</code></pre></div>
+<p>Four properties to respect:</p>
+<ul>
+<li><strong>Key your state on <code>strokeId</code>.</strong> There is exactly one position per stroke; a better fix replaces
+  it under the same <code>strokeId</code>, so an upsert is always the right move.</li>
+<li><strong><code>revision</code> only ever increases</strong>, across first fixes, corrections and retractions alike.</li>
+<li><strong>Delivery is at-least-once.</strong> After a reconnect you may see a revision twice, so make processing
+  idempotent on <code>(strokeId, revision)</code>.</li>
+<li><strong>Persist the cursor after processing, not on receipt.</strong> Crashing between the two should replay,
+  not skip.</li>
+</ul>
+<h3 id="ballpositions-current-state"><code>ballPositions</code> — current state<a class="headerlink" href="#ballpositions-current-state" title="Permanent link">&para;</a></h3>
+<p>Current best position per stroke: the set on connect, then updates. Convenient for painting a
+scoreboard or a hole overview without replaying history. Filterable by <code>hole</code>.</p>
+<p><code>operations/SubscribeToBallPositions.gql</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"roundId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1042"</span><span class="p">,</span><span class="w"> </span><span class="nt">"hole"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>It does not give you an ordered log, so do not use it to drive an event pipeline — it can collapse
+several changes into one delivery.</p>
+<h3 id="which-positions-you-get">Which positions you get<a class="headerlink" href="#which-positions-you-get" title="Permanent link">&para;</a></h3>
+<p>Positions derived from your own stroke reports are not published back to you; the first position you
+see for a stroke is Bolt6's own. See <a href="../reference/#5-which-position-you-receive">Which position you receive</a>.</p>
+<hr />
+<h2 id="6-handling-zone-only-positions">6. Handling zone-only positions<a class="headerlink" href="#6-handling-zone-only-positions" title="Permanent link">&para;</a></h2>
+<p><strong>The single most common integration bug.</strong> <code>easting</code>, <code>northing</code> and <code>elevation</code> are nullable, and
+null together.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"revision"</span><span class="p">:</span><span class="w"> </span><span class="mi">48125</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"strokeId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88307"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"strokeExternalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S-7A1C90D2"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"playerExternalId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-244"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"hole"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"strokeNum"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OGS"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"subSurface"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ZONED"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"retracted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"observedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T20:16:41.500Z"</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This says: <em>the ball is in a greenside bunker; we have not fixed its coordinates.</em> It is a real,
+current, correct position record — the normal state of a stroke between the ball coming to rest and
+being located.</p>
+<p>Read <code>state</code> first:</p>
+<table>
+<thead>
+<tr>
+<th><code>state</code></th>
+<th>Coordinates</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VERIFIED</code></td>
+<td>present</td>
+<td>plot it</td>
+</tr>
+<tr>
+<td><code>OVERRIDE</code></td>
+<td>present</td>
+<td>plot it; manually corrected</td>
+</tr>
+<tr>
+<td><code>PREDICTED</code></td>
+<td>present</td>
+<td>plot it, optionally styled as provisional</td>
+</tr>
+<tr>
+<td><code>ZONED</code></td>
+<td><strong>all null</strong></td>
+<td>show the surface — "greenside bunker" — with no map pin</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="s2">"state"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"ZONED"</span><span class="p">:</span>
+    <span class="n">view</span><span class="o">.</span><span class="n">show_surface_only</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">"strokeId"</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s2">"surface"</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">view</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">"strokeId"</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s2">"easting"</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s2">"northing"</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="s2">"elevation"</span><span class="p">])</span>
+</code></pre></div>
+<p>A <code>ZONED</code> position is superseded by a <code>VERIFIED</code> one for the same <code>strokeId</code> with a higher
+<code>revision</code> once the coordinates are known. Never treat null coordinates as <code>0</code> — that plots the ball at the
+equator.</p>
+<hr />
+<h2 id="7-corrections-and-retractions">7. Corrections and retractions<a class="headerlink" href="#7-corrections-and-retractions" title="Permanent link">&para;</a></h2>
+<p>Both directions have to handle withdrawal, because both sides make mistakes.</p>
+<h3 id="corrections-you-receive">Corrections you receive<a class="headerlink" href="#corrections-you-receive" title="Permanent link">&para;</a></h3>
+<p>A corrected position is <strong>the same <code>strokeId</code> with a higher <code>revision</code></strong>. Upsert on <code>strokeId</code> and
+it works; append blindly and you get duplicates.</p>
+<div class="highlight"><pre><span></span><code>revision 48125  strokeId 88307  state ZONED      easting null
+revision 48160  strokeId 88307  state VERIFIED   easting 335230.10   &lt;- same stroke, better fix
+</code></pre></div>
+<h3 id="retractions-you-receive">Retractions you receive<a class="headerlink" href="#retractions-you-receive" title="Permanent link">&para;</a></h3>
+<p>A withdrawn stroke's position arrives as a new revision with <code>retracted: true</code>. It is never a silent
+disappearance, so a client that only ever adds rows will show a ball that is no longer in play.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"revision"</span><span class="p">:</span><span class="w"> </span><span class="mi">48191</span><span class="p">,</span><span class="w"> </span><span class="nt">"strokeId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88307"</span><span class="p">,</span><span class="w"> </span><span class="nt">"retracted"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ZONED"</span><span class="p">,</span><span class="w"> </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OGS"</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>Treat <code>retracted: true</code> as authoritative and remove the record.</p>
+<h3 id="retractions-you-send">Retractions you send<a class="headerlink" href="#retractions-you-send" title="Permanent link">&para;</a></h3>
+<p>If you reported a stroke in error, withdraw it. We mark its positions retracted and publish that
+onward, so every downstream consumer learns about it.</p>
+<p><code>operations/RetractStroke.gql</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"strokeId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88301"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"retractStroke"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p><code>strokeId</code> is the Bolt6 id <code>upsertStroke</code> returned — the reason to keep the id map. To <em>correct</em>
+rather than withdraw a stroke, just <code>upsertStroke</code> again with the same <code>externalId</code> — no retraction
+needed. Retract only when the stroke should not exist at all.</p>
+<p>Setup data (tournament, course, groups) has no retraction: correct it by upserting again.</p>
+<hr />
+<h2 id="8-computing-distances-on-your-side">8. Computing distances on your side<a class="headerlink" href="#8-computing-distances-on-your-side" title="Permanent link">&para;</a></h2>
+<p>Distances are yours to compute. Every coordinate is in one flat metric grid, so it is plain
+Euclidean arithmetic — no projection library, no geodesic formula.</p>
+<p>Ball, from <code>ballPositionEvents</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">335230.10</span><span class="p">,</span><span class="w"> </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247788.30</span><span class="p">,</span><span class="w"> </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">30.85</span><span class="p">,</span><span class="w"> </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OFW"</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>Pin for the same hole, from <code>holeReferences</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"hole"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PIN"</span><span class="p">,</span><span class="w"> </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">335316.84</span><span class="p">,</span><span class="w"> </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247894.84</span><span class="p">,</span><span class="w"> </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">32.10</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">dE</span> <span class="o">=</span> <span class="mf">335230.10</span> <span class="o">-</span> <span class="mf">335316.84</span>      <span class="c1">#  -86.74 m</span>
+<span class="n">dN</span> <span class="o">=</span> <span class="mf">6247788.30</span> <span class="o">-</span> <span class="mf">6247894.84</span>    <span class="c1"># -106.54 m</span>
+<span class="n">dZ</span> <span class="o">=</span> <span class="mf">30.85</span> <span class="o">-</span> <span class="mf">32.10</span>              <span class="c1">#   -1.25 m</span>
+
+<span class="n">flat</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dE</span><span class="p">,</span> <span class="n">dN</span><span class="p">)</span>                 <span class="c1"># 137.38 m   (150.2 yd)</span>
+<span class="n">slope</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dE</span><span class="o">*</span><span class="n">dE</span> <span class="o">+</span> <span class="n">dN</span><span class="o">*</span><span class="n">dN</span> <span class="o">+</span> <span class="n">dZ</span><span class="o">*</span><span class="n">dZ</span><span class="p">)</span>  <span class="c1"># 137.39 m</span>
+</code></pre></div>
+<p>So 137.38 m — 150.2 yards — to the pin. Convert for display if your audience expects yards
+(<code>× 1.09361</code>); the wire stays metric.</p>
+<p>Same arithmetic for distance travelled (previous resting position → current) and distance from the
+tee (<code>holeReferences</code> <code>type: TEE</code> → ball).</p>
+<p><strong>Skip strokes with null coordinates</strong> — a <code>ZONED</code> position has no distance.</p>
+<hr />
+<h2 id="9-pin-and-tee-positions">9. Pin and tee positions<a class="headerlink" href="#9-pin-and-tee-positions" title="Permanent link">&para;</a></h2>
+<p>Pin positions change daily, so read them per round and never cache across rounds.</p>
+<p><code>operations/SubscribeToHoleReferences.gql</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"roundId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1042"</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"holeReferences"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"hole"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PIN"</span><span class="p">,</span><span class="w"> </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">335316.84</span><span class="p">,</span><span class="w"> </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247894.84</span><span class="p">,</span><span class="w"> </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">32.10</span><span class="p">,</span><span class="w"> </span><span class="nt">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T18:02:11.000Z"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"hole"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TEE"</span><span class="p">,</span><span class="w"> </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">334902.55</span><span class="p">,</span><span class="w"> </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247490.18</span><span class="p">,</span><span class="w"> </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">35.40</span><span class="p">,</span><span class="w"> </span><span class="nt">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T17:44:02.000Z"</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Subscribe rather than query once: a pin updated mid-round arrives as an update, and stale pin
+positions silently corrupt every distance you compute. <code>type</code> is <code>PIN</code> or <code>TEE</code>; ignore any other
+value a future revision adds.</p>
+<hr />
+<h2 id="10-converting-to-latitudelongitude">10. Converting to latitude/longitude<a class="headerlink" href="#10-converting-to-latitudelongitude" title="Permanent link">&para;</a></h2>
+<p>If your downstream needs geographic coordinates, convert with any standard library using the <code>epsg</code>
+from <code>course</code>. Nothing bespoke is involved — it is a published EPSG code.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>
+
+<span class="c1"># epsg comes from the course query: 32756 for UTM 56 South</span>
+<span class="n">to_wgs84</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="s2">"EPSG:32756"</span><span class="p">,</span> <span class="s2">"EPSG:4326"</span><span class="p">,</span> <span class="n">always_xy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">to_wgs84</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="mf">335230.10</span><span class="p">,</span> <span class="mf">6247788.30</span><span class="p">)</span>
+<span class="c1"># lat = -33.897422, lon = 151.218017</span>
+</code></pre></div>
+<p>The pin from the previous section converts to <code>lat -33.896475, lon 151.218975</code>.</p>
+<p>Prefer to stay in UTM where you can: distances are direct, and every round-trip through
+latitude/longitude costs precision.</p>
+<p><code>elevation</code> is passed through unchanged and is not part of the horizontal conversion — see the
+vertical datum note in <a href="../reference/#2-coordinates">Coordinates</a>.</p>
+<hr />
+<h2 id="11-reconnecting-and-resuming">11. Reconnecting and resuming<a class="headerlink" href="#11-reconnecting-and-resuming" title="Permanent link">&para;</a></h2>
+<p>WebSockets drop. The contract is built so that costs you nothing.</p>
+<div class="highlight"><pre><span></span><code><span class="n">cursor</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">get_cursor</span><span class="p">(</span><span class="n">round_id</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+
+<span class="k">while</span> <span class="n">running</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">subscribe</span><span class="p">(</span><span class="n">ballPositionEvents</span><span class="p">,</span> <span class="n">roundId</span><span class="o">=</span><span class="n">round_id</span><span class="p">,</span>
+                                     <span class="n">afterRevision</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span> <span class="n">batchSize</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span>
+                <span class="n">apply</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="n">cursor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="s2">"revision"</span><span class="p">])</span>
+            <span class="n">store</span><span class="o">.</span><span class="n">set_cursor</span><span class="p">(</span><span class="n">round_id</span><span class="p">,</span> <span class="n">cursor</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ConnectionError</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">backoff</span><span class="p">())</span>     <span class="c1"># resume from the same cursor</span>
+</code></pre></div>
+<ul>
+<li><strong>Resume from your stored cursor</strong>, not from <code>0</code> — that would replay the whole round.</li>
+<li><strong>Expect duplicates</strong> across a reconnect; idempotent application makes them harmless.</li>
+<li>We hold no per-consumer state, so several of your processes can consume the same round
+  concurrently with independent cursors.</li>
+</ul>
+<p>If you lose the cursor, <code>afterRevision: 0</code> rebuilds state from scratch — correct, just slower.</p>
+<hr />
+<h2 id="12-replay-and-backfill">12. Replay and backfill<a class="headerlink" href="#12-replay-and-backfill" title="Permanent link">&para;</a></h2>
+<p><code>afterRevision: 0</code> replays a round from the beginning, in revision order, including every
+correction and retraction. Replaying into the same idempotent handler converges on the same state.</p>
+<p>Useful for backfilling a round you were offline for, rebuilding after a schema change on your side,
+and testing against a completed round before going live.</p>
+<p>For a completed round the <code>ballPositions</code> query with <code>limit</code>/<code>offset</code> is a cheaper way to get final
+positions only, without the revision history.</p>
+<hr />
+<h2 id="13-error-handling">13. Error handling<a class="headerlink" href="#13-error-handling" title="Permanent link">&para;</a></h2>
+<p>Two failure classes, handled differently. Getting this wrong is how integrations end up hammering
+us with a payload that will never be accepted.</p>
+<h3 id="rejected-payloads-do-not-retry-unchanged">Rejected payloads — do not retry unchanged<a class="headerlink" href="#rejected-payloads-do-not-retry-unchanged" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"upsertStroke"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown roundId '9999'"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">      </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>accepted: false</code> means the payload is wrong. Retrying it unchanged will fail identically forever.
+Log it, alert, fix the payload. A call-level problem — an unknown parent id — puts the reason in
+<code>message</code> and stores nothing. In a batch (<code>upsertRounds</code>, <code>upsertGroups</code>) an individual bad item
+appears in <code>rejected</code> with its <code>externalId</code> and reason while the rest are stored. Common causes:</p>
+<table>
+<thead>
+<tr>
+<th><code>message</code></th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unknown roundId</code> / <code>unknown tournamentId</code> / <code>unknown courseId</code></td>
+<td>a Bolt6 id you never received, or one from another tournament — <a href="#ids-ours-for-references-yours-for-creation">Ids</a></td>
+</tr>
+<tr>
+<td><code>unknown playerId</code> / <code>unknown groupId</code></td>
+<td>not returned by <code>upsertGroups</code> for this round — <a href="#3-groups-and-players">use case 3</a></td>
+</tr>
+<tr>
+<td><code>no stroke timestamp supplied</code></td>
+<td>none of <code>createdAt</code> / <code>overBallAt</code> / <code>hitAt</code> present</td>
+</tr>
+<tr>
+<td><code>duplicate hole number</code></td>
+<td>two <code>holes</code> entries with the same <code>number</code> in one <code>upsertCourse</code> — <a href="#2-course-and-rounds">use case 2</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="transport-and-auth-errors-retry-with-backoff">Transport and auth errors — retry with backoff<a class="headerlink" href="#transport-and-auth-errors-retry-with-backoff" title="Permanent link">&para;</a></h3>
+<p>These arrive as GraphQL <code>errors</code>, not as <code>accepted: false</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Could not verify JWT: JWTExpired"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>Retry with exponential backoff and jitter. Refresh the token on an auth error rather than retrying
+the same expired one.</p>
+<p>Full semantics in <a href="../reference/#9-errors">Errors</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "content.code.copy", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

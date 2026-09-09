@@ -3,9 +3,9 @@
 Bolt6 publishes golf ball positions during play. This package is everything you need to
 integrate: send us the scorecard and stroke state, receive ball, pin and tee positions.
 
-## What each side provides
+## Who provides what
 
-| | You provide | Bolt6 provides |
+| | Scoring Provider | Ball Positioning Provider |
 |---|---|---|
 | Tournament and round structure | ✔ | |
 | Course, holes, par, hole length | ✔ | |
@@ -22,7 +22,7 @@ They are all in one flat metric coordinate system, so it is Euclidean arithmetic
 
 | File | What it is |
 |---|---|
-| this page | overview, prerequisites, quickstart, checklist |
+| this page | overview, what you'll need, quickstart, checklist |
 | [Integration guide](integration.md) | every use case end to end, with request/response examples |
 | [Reference](reference.md) | normative semantics: coordinates, units, time, delivery, auth, errors |
 | [`partner-schema.gql`](schema.md) | the contract, as GraphQL SDL |
@@ -30,9 +30,9 @@ They are all in one flat metric coordinate system, so it is Euclidean arithmetic
 
 Read this page, then the [Integration guide](integration.md). Use the [Reference](reference.md) to settle details.
 
-## The five things that catch people out
+## Five things worth knowing up front
 
-Worth knowing before you write any code.
+These are easier to design around now than to retrofit later.
 
 1. **Ball coordinates can be null.** When we know the ball is in the left greenside bunker but have
    not yet fixed its coordinates, you get `state: ZONED`, a populated `surface`, and
@@ -44,13 +44,13 @@ Worth knowing before you write any code.
    [Coordinates](reference.md#2-coordinates).
 3. **Everything is metric.** Hole length in metres, not yards; values are stored exactly as sent.
 4. **Positions get corrected and withdrawn.** There is one position per stroke; a correction arrives
-   as the same `strokeId` with a higher `revision`, a withdrawal with `retracted: true`. You must
-   handle both. See
+   as the same `strokeId` with a higher `revision`, a withdrawal with `retracted: true`. Both
+   arrive on the same `strokeId`, so a single handler covers them. See
    [Corrections and retractions](integration.md#7-corrections-and-retractions).
 5. **You hold the cursor.** We keep no per-consumer delivery state. Persist the highest `revision`
    you have processed and resume from it. See [Delivery](reference.md#7-delivery).
 
-## Prerequisites
+## What you'll need
 
 - **A GraphQL client** that supports subscriptions over the `graphql-transport-ws` WebSocket
   subprotocol. Widely available: `graphql-ws` (JS/TS), `gql` with `websockets` (Python),
@@ -63,7 +63,7 @@ Worth knowing before you write any code.
   your `externalId`; every later reference — reads, strokes, retractions — uses the Bolt6 id. See
   [Ids](integration.md#ids-ours-for-references-yours-for-creation).
 - **Durable storage for one integer** per round — the last `revision` you processed.
-- **The course's UTM zone.** Supply it in `upsertCourse`. If you do not know it, derive it from the
+- **The course's UTM zone.** Send it in `upsertCourse`. If you don't have it to hand, it derives from the
   course's longitude: `zone = floor((longitude + 180) / 6) + 1`.
 
 ## Endpoint
@@ -73,7 +73,7 @@ wss://<tour>.hasura.bolt6.cloud/v1/graphql   subscriptions
 https://<tour>.hasura.bolt6.cloud/v1/graphql queries and mutations
 ```
 
-You are given the exact host for your tour. One deployment per tour, so there is no tenant field on
+We'll give you the exact host for your tour. One deployment per tour, so there is no tenant field on
 the wire.
 
 Authenticate with `Authorization: Bearer <jwt>` on both. Details in
@@ -155,7 +155,7 @@ curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
         "easting": 335230.10,
         "northing": 6247788.30,
         "elevation": 30.85,
-        "surface": "OFW",
+        "surface": "FWY",
         "state": "VERIFIED",
         "retracted": false,
         "observedAt": "2026-03-14T20:16:03.076Z"
@@ -171,7 +171,7 @@ curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
         "easting": null,
         "northing": null,
         "elevation": null,
-        "surface": "OGS",
+        "surface": "BNK",
         "state": "ZONED",
         "retracted": false,
         "observedAt": "2026-03-14T20:16:41.500Z"
@@ -181,8 +181,8 @@ curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
 }
 ```
 
-Note the second row: a real ball, in a greenside bunker, with no coordinates yet. Your renderer has
-to cope with that. And note the ids: `strokeId`/`playerId` are ours, `strokeExternalId`/
+Note the second row: a real ball, in a greenside bunker, with no coordinates yet. Your renderer will
+meet this case often. And note the ids: `strokeId`/`playerId` are ours, `strokeExternalId`/
 `playerExternalId` are the ones you sent in `upsertStroke` and `upsertGroups` — both are on every
 position, so it joins to your records with or without your id map.
 
@@ -212,18 +212,17 @@ During play:
 - [ ] `ballPositionEvents` subscribed, with `afterRevision` from durable storage
 - [ ] `holeReferences` subscribed — pin positions change daily
 
-Client correctness — the parts that break in production, not in testing:
+Client correctness — the parts worth exercising before going live, since they rarely surface in testing:
 
 - [ ] Null `easting`/`northing`/`elevation` render correctly
 - [ ] `retracted: true` removes the position from display
 - [ ] Same `strokeId` with a higher `revision` replaces, not duplicates
 - [ ] Cursor persisted after processing, so a restart resumes rather than replays
-- [ ] Unknown enum members do not crash the client
 - [ ] `accepted: false` is logged and **not** retried unchanged
 - [ ] Transport errors retried with backoff
 - [ ] Round numbers ordered by `num`, not assumed to be 1..4
 
 ## Support
 
-Contract version is in the header of `partner-schema.gql`. Quote it, plus the `roundId` and a
-`revision`, in any query to us — that is enough for us to find the exact records you saw.
+Contract version is in the header of `partner-schema.gql`. Sending it along with the `roundId` and a
+`revision` is enough for us to find the exact records you saw.

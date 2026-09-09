@@ -134,8 +134,8 @@ added).
 
 - **`length` is metres.** `6532.0` m, not `7143` yards. It is stored verbatim, so a yardage sent
   here will be published as though it were metres.
-- **`utmZone` / `utmHemisphere` are required.** Everything positional in both directions is
-  expressed in this CRS. If you do not know the zone:
+- **`utmZone` and `utmHemisphere` set the coordinate system.** Everything positional in both
+  directions is expressed in it, so we need both before we can place anything. If you don't have the zone:
   `zone = floor((longitude + 180) / 6) + 1`, hemisphere from the sign of the latitude.
 - Par is optional but recommended; we pass it through to downstream consumers.
 
@@ -253,7 +253,7 @@ Send when the draw is published, and again on any change (a withdrawal, a tee-ti
 }
 ```
 
-- **Keep the `ids`.** `groupId` and `playerId` are what every `upsertStroke` needs.
+- **The `ids` matter later.** `groupId` and `playerId` are what every `upsertStroke` needs.
 - **Players are per tournament.** The same player `externalId` in another round's groups resolves
   to the same `playerId`, so the map you build in round 1 stays valid all week.
 - **Colours are integers, `0xRRGGBB`.** `16711680` is `0xFF0000`, red. Send decimal integers in
@@ -290,7 +290,7 @@ are no coordinate fields on this input.
     "strokeNum": 2,
     "kind": "NORMAL",
     "status": "OVER_THE_BALL",
-    "fromSurface": "OFW",
+    "fromSurface": "FWY",
     "club": "D",
     "createdAt": "2026-03-14T20:15:03.076Z",
     "overBallAt": "2026-03-14T20:15:33.076Z"
@@ -327,18 +327,18 @@ If you do have pre-shot events, the full lifecycle is three upserts with the sam
 | `HIT` | stroke played | `createdAt`, `overBallAt`, `hitAt` |
 
 Because it is keyed on your `externalId` within the round, resending is safe and successive calls
-progressively enrich one stroke. **At least one timestamp is required**; we take `hitAt`, else `overBallAt`, else
+progressively enrich one stroke. We need at least one timestamp, and take `hitAt`, else `overBallAt`, else
 `createdAt` as the stroke time.
 
 `holeOrder` is the position of this hole in the player's round — `13` here means the 13th hole
-they played, which is hole 7 because the group started on the back nine. Omit it if you do not
+they played, which is hole 7 because the group started on the back nine. Omit it if you don't
 track it.
 
 Set `kind` to `PENALTY` or `DROP` when it applies, so downstream consumers can distinguish those from
 a played stroke; `PROVISIONAL` is available too.
 
-You do not need to wait for a response before sending the next status — but do check `accepted`, and
-see [Error handling](#13-error-handling).
+There's no need to wait for a response before sending the next status, though it's worth checking
+`accepted` — see [Error handling](#13-error-handling).
 
 ---
 
@@ -375,7 +375,7 @@ Every revision in order, resumable. **This is the one to build on.**
         "easting": 335230.10,
         "northing": 6247788.30,
         "elevation": 30.85,
-        "surface": "OFW",
+        "surface": "FWY",
         "subSurface": "FR",
         "state": "VERIFIED",
         "inTheHole": false,
@@ -425,7 +425,7 @@ scoreboard or a hole overview without replaying history. Filterable by `hole`.
 { "roundId": "1042", "hole": 7 }
 ```
 
-It does not give you an ordered log, so do not use it to drive an event pipeline — it can collapse
+It isn't an ordered log, so it's not the right source for an event pipeline — it can collapse
 several changes into one delivery.
 
 ### Which positions you get
@@ -451,7 +451,7 @@ null together.
   "easting": null,
   "northing": null,
   "elevation": null,
-  "surface": "OGS",
+  "surface": "BNK",
   "subSurface": null,
   "state": "ZONED",
   "retracted": false,
@@ -505,7 +505,7 @@ A withdrawn stroke's position arrives as a new revision with `retracted: true`. 
 disappearance, so a client that only ever adds rows will show a ball that is no longer in play.
 
 ```json
-{ "revision": 48191, "strokeId": "88307", "retracted": true, "state": "ZONED", "surface": "OGS" }
+{ "revision": 48191, "strokeId": "88307", "retracted": true, "state": "ZONED", "surface": "BNK" }
 ```
 
 Treat `retracted: true` as authoritative and remove the record.
@@ -541,7 +541,7 @@ Euclidean arithmetic — no projection library, no geodesic formula.
 Ball, from `ballPositionEvents`:
 
 ```json
-{ "easting": 335230.10, "northing": 6247788.30, "elevation": 30.85, "surface": "OFW" }
+{ "easting": 335230.10, "northing": 6247788.30, "elevation": 30.85, "surface": "FWY" }
 ```
 
 Pin for the same hole, from `holeReferences`:
@@ -664,10 +664,9 @@ positions only, without the revision history.
 
 ## 13. Error handling
 
-Two failure classes, handled differently. Getting this wrong is how integrations end up hammering
-us with a payload that will never be accepted.
+Two failure classes, handled differently — one is worth retrying, the other isn't.
 
-### Rejected payloads — do not retry unchanged
+### Rejected payloads — fix before resending
 
 ```json
 {
@@ -682,14 +681,14 @@ us with a payload that will never be accepted.
 }
 ```
 
-`accepted: false` means the payload is wrong. Retrying it unchanged will fail identically forever.
-Log it, alert, fix the payload. A call-level problem — an unknown parent id — puts the reason in
+`accepted: false` means something in the payload needs changing, and the same call will get the same
+answer. Log it, alert, and fix before resending. A call-level problem — an unknown parent id — puts the reason in
 `message` and stores nothing. In a batch (`upsertRounds`, `upsertGroups`) an individual bad item
 appears in `rejected` with its `externalId` and reason while the rest are stored. Common causes:
 
 | `message` | Cause |
 |---|---|
-| `unknown roundId` / `unknown tournamentId` / `unknown courseId` | a Bolt6 id you never received, or one from another tournament — [Ids](#ids-ours-for-references-yours-for-creation) |
+| `unknown roundId` / `unknown tournamentId` / `unknown courseId` | a Bolt6 id that wasn't returned to you, or one from another tournament — [Ids](#ids-ours-for-references-yours-for-creation) |
 | `unknown playerId` / `unknown groupId` | not returned by `upsertGroups` for this round — [use case 3](#3-groups-and-players) |
 | `no stroke timestamp supplied` | none of `createdAt` / `overBallAt` / `hitAt` present |
 | `duplicate hole number` | two `holes` entries with the same `number` in one `upsertCourse` — [use case 2](#2-course-and-rounds) |

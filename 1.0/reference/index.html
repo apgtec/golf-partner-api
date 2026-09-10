@@ -1326,7 +1326,7 @@ will be republished as though it were metres. Convert for display on your side
 <li>Fractional seconds to at most microsecond precision.</li>
 </ul>
 <p><strong>Stroke time precedence.</strong> When you supply more than one lifecycle time, Bolt6 takes <code>hitAt</code>, else
-<code>overBallAt</code>, else <code>createdAt</code> as the stroke time. At least one is required; a stroke with none is
+<code>overBallAt</code>, else <code>createdAt</code> as the stroke time. We need at least one; a stroke with none is
 rejected.</p>
 <h2 id="5-which-position-you-receive">5. Which position you receive<a class="headerlink" href="#5-which-position-you-receive" title="Permanent link">&para;</a></h2>
 <p>There is exactly one published position per stroke, identified by <code>strokeId</code>. Bolt6 may hold
@@ -1457,8 +1457,8 @@ through the contact you were onboarded with.</p>
 </tr>
 </tbody>
 </table>
-<p><code>accepted: false</code> means the payload is wrong. <strong>Do not retry unchanged</strong> — it will fail identically.
-Log, alert, fix.</p>
+<p><code>accepted: false</code> means something in the payload needs changing — the same call gets the same answer.
+Log, alert, fix before resending.</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"upsertStroke"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown roundId '9999'"</span><span class="p">,</span><span class="w"> </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">"rejected"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p>Several mutations in one request execute <strong>in order, but not as one transaction</strong>: if the third
@@ -1496,52 +1496,22 @@ where practical.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>OFW</code> Fairway</td>
-<td><code>OFW_E</code> Fairway edge</td>
-<td><code>ORO</code> Rough</td>
-<td><code>OR1</code> First cut rough</td>
+<td><code>TEE</code> Tee box</td>
+<td><code>FWY</code> Fairway</td>
+<td><code>INT</code> Intermediate</td>
+<td><code>RGH</code> Rough</td>
 </tr>
 <tr>
-<td><code>OR2</code> Second cut rough</td>
-<td><code>OIR</code> Intermediate rough</td>
-<td><code>OGR</code> Green</td>
-<td><code>OGS</code> Greenside bunker</td>
+<td><code>GRN</code> Green</td>
+<td><code>GCL</code> Collar / margin</td>
+<td><code>BNK</code> Bunker</td>
+<td><code>WTR</code> Water</td>
 </tr>
 <tr>
-<td><code>OFB</code> Fairway bunker</td>
-<td><code>OWB</code> Waste bunker</td>
-<td><code>OGB</code> Grass bunker</td>
-<td><code>OCO</code> Collar / margin</td>
-</tr>
-<tr>
-<td><code>OTB</code> Tee boxes</td>
-<td><code>ONA</code> Native area</td>
-<td><code>OWA</code> Water</td>
-<td><code>OWS</code> Walk strip</td>
-</tr>
-<tr>
-<td><code>OPS</code> Pine straw / mulch</td>
-<td><code>ORK</code> Rocks</td>
-<td><code>ODO</code> Dirt</td>
-<td><code>OPT</code> Path</td>
-</tr>
-<tr>
-<td><code>OCA</code> Cart path</td>
-<td><code>OTO</code> Tree outline</td>
-<td><code>OBR</code> Bridge</td>
-<td><code>OBD</code> Building</td>
-</tr>
-<tr>
-<td><code>OBO</code> Bush / shrubs</td>
-<td><code>OSS</code> Step</td>
-<td><code>OLN</code> Landscaping</td>
-<td><code>OWL</code> Wall</td>
-</tr>
-<tr>
+<td><code>NAT</code> Native area</td>
+<td><code>PTH</code> Path</td>
+<td><code>NMS</code> Non-movable structure</td>
 <td><code>OTH</code> Other</td>
-<td></td>
-<td></td>
-<td></td>
 </tr>
 </tbody>
 </table>
@@ -1556,39 +1526,47 @@ where practical.</p>
 <tbody>
 <tr>
 <td>tee</td>
-<td><code>OTB</code></td>
+<td><code>TEE</code></td>
 </tr>
 <tr>
 <td>fairway</td>
-<td><code>OFW</code></td>
+<td><code>FWY</code></td>
+</tr>
+<tr>
+<td>first cut / intermediate rough / fairway edge</td>
+<td><code>INT</code></td>
 </tr>
 <tr>
 <td>rough</td>
-<td><code>ORO</code></td>
+<td><code>RGH</code></td>
 </tr>
 <tr>
 <td>green</td>
-<td><code>OGR</code></td>
+<td><code>GRN</code></td>
 </tr>
 <tr>
 <td>fringe / collar</td>
-<td><code>OCO</code></td>
+<td><code>GCL</code></td>
 </tr>
 <tr>
-<td>bunker beside the green</td>
-<td><code>OGS</code></td>
-</tr>
-<tr>
-<td>any other bunker</td>
-<td><code>OFB</code></td>
+<td>any bunker</td>
+<td><code>BNK</code></td>
 </tr>
 <tr>
 <td>water / penalty area</td>
-<td><code>OWA</code></td>
+<td><code>WTR</code></td>
 </tr>
 <tr>
 <td>native / unmaintained area</td>
-<td><code>ONA</code></td>
+<td><code>NAT</code></td>
+</tr>
+<tr>
+<td>cart path / walk strip</td>
+<td><code>PTH</code></td>
+</tr>
+<tr>
+<td>building / wall / bridge / step</td>
+<td><code>NMS</code></td>
 </tr>
 <tr>
 <td>anything else</td>

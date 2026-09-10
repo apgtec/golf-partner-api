@@ -430,10 +430,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-each-side-provides" class="md-nav__link">
+  <a href="#who-provides-what" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What each side provides
+        Who provides what
       
     </span>
   </a>
@@ -452,10 +452,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-five-things-that-catch-people-out" class="md-nav__link">
+  <a href="#five-things-worth-knowing-up-front" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The five things that catch people out
+        Five things worth knowing up front
       
     </span>
   </a>
@@ -463,10 +463,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#what-youll-need" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        What you'll need
       
     </span>
   </a>
@@ -660,10 +660,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-each-side-provides" class="md-nav__link">
+  <a href="#who-provides-what" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What each side provides
+        Who provides what
       
     </span>
   </a>
@@ -682,10 +682,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-five-things-that-catch-people-out" class="md-nav__link">
+  <a href="#five-things-worth-knowing-up-front" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The five things that catch people out
+        Five things worth knowing up front
       
     </span>
   </a>
@@ -693,10 +693,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#what-youll-need" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        What you'll need
       
     </span>
   </a>
@@ -770,13 +770,13 @@
 <h1 id="bolt6-golf-data-integration">Bolt6 golf data integration<a class="headerlink" href="#bolt6-golf-data-integration" title="Permanent link">&para;</a></h1>
 <p>Bolt6 publishes golf ball positions during play. This package is everything you need to
 integrate: send us the scorecard and stroke state, receive ball, pin and tee positions.</p>
-<h2 id="what-each-side-provides">What each side provides<a class="headerlink" href="#what-each-side-provides" title="Permanent link">&para;</a></h2>
+<h2 id="who-provides-what">Who provides what<a class="headerlink" href="#who-provides-what" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th></th>
-<th>You provide</th>
-<th>Bolt6 provides</th>
+<th>Scoring Provider</th>
+<th>Ball Positioning Provider</th>
 </tr>
 </thead>
 <tbody>
@@ -826,7 +826,7 @@ They are all in one flat metric coordinate system, so it is Euclidean arithmetic
 <tbody>
 <tr>
 <td>this page</td>
-<td>overview, prerequisites, quickstart, checklist</td>
+<td>overview, what you'll need, quickstart, checklist</td>
 </tr>
 <tr>
 <td><a href="integration/">Integration guide</a></td>
@@ -847,8 +847,8 @@ They are all in one flat metric coordinate system, so it is Euclidean arithmetic
 </tbody>
 </table>
 <p>Read this page, then the <a href="integration/">Integration guide</a>. Use the <a href="reference/">Reference</a> to settle details.</p>
-<h2 id="the-five-things-that-catch-people-out">The five things that catch people out<a class="headerlink" href="#the-five-things-that-catch-people-out" title="Permanent link">&para;</a></h2>
-<p>Worth knowing before you write any code.</p>
+<h2 id="five-things-worth-knowing-up-front">Five things worth knowing up front<a class="headerlink" href="#five-things-worth-knowing-up-front" title="Permanent link">&para;</a></h2>
+<p>These are easier to design around now than to retrofit later.</p>
 <ol>
 <li><strong>Ball coordinates can be null.</strong> When we know the ball is in the left greenside bunker but have
    not yet fixed its coordinates, you get <code>state: ZONED</code>, a populated <code>surface</code>, and
@@ -860,13 +860,13 @@ They are all in one flat metric coordinate system, so it is Euclidean arithmetic
    <a href="reference/#2-coordinates">Coordinates</a>.</li>
 <li><strong>Everything is metric.</strong> Hole length in metres, not yards; values are stored exactly as sent.</li>
 <li><strong>Positions get corrected and withdrawn.</strong> There is one position per stroke; a correction arrives
-   as the same <code>strokeId</code> with a higher <code>revision</code>, a withdrawal with <code>retracted: true</code>. You must
-   handle both. See
+   as the same <code>strokeId</code> with a higher <code>revision</code>, a withdrawal with <code>retracted: true</code>. Both
+   arrive on the same <code>strokeId</code>, so a single handler covers them. See
    <a href="integration/#7-corrections-and-retractions">Corrections and retractions</a>.</li>
 <li><strong>You hold the cursor.</strong> We keep no per-consumer delivery state. Persist the highest <code>revision</code>
    you have processed and resume from it. See <a href="reference/#7-delivery">Delivery</a>.</li>
 </ol>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<h2 id="what-youll-need">What you'll need<a class="headerlink" href="#what-youll-need" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>A GraphQL client</strong> that supports subscriptions over the <code>graphql-transport-ws</code> WebSocket
   subprotocol. Widely available: <code>graphql-ws</code> (JS/TS), <code>gql</code> with <code>websockets</code> (Python),
@@ -879,14 +879,14 @@ They are all in one flat metric coordinate system, so it is Euclidean arithmetic
   your <code>externalId</code>; every later reference — reads, strokes, retractions — uses the Bolt6 id. See
   <a href="integration/#ids-ours-for-references-yours-for-creation">Ids</a>.</li>
 <li><strong>Durable storage for one integer</strong> per round — the last <code>revision</code> you processed.</li>
-<li><strong>The course's UTM zone.</strong> Supply it in <code>upsertCourse</code>. If you do not know it, derive it from the
+<li><strong>The course's UTM zone.</strong> Send it in <code>upsertCourse</code>. If you don't have it to hand, it derives from the
   course's longitude: <code>zone = floor((longitude + 180) / 6) + 1</code>.</li>
 </ul>
 <h2 id="endpoint">Endpoint<a class="headerlink" href="#endpoint" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>wss://&lt;tour&gt;.hasura.bolt6.cloud/v1/graphql   subscriptions
 https://&lt;tour&gt;.hasura.bolt6.cloud/v1/graphql queries and mutations
 </code></pre></div>
-<p>You are given the exact host for your tour. One deployment per tour, so there is no tenant field on
+<p>We'll give you the exact host for your tour. One deployment per tour, so there is no tenant field on
 the wire.</p>
 <p>Authenticate with <code>Authorization: Bearer &lt;jwt&gt;</code> on both. Details in
 <a href="reference/#8-authentication">Authentication</a>.</p>
@@ -950,7 +950,7 @@ coordinate systems every position is expressed in.</p>
 <span class="w">        </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">335230.10</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247788.30</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">30.85</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OFW"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FWY"</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VERIFIED"</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"retracted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"observedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T20:16:03.076Z"</span>
@@ -966,7 +966,7 @@ coordinate systems every position is expressed in.</p>
 <span class="w">        </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OGS"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BNK"</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ZONED"</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"retracted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"observedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T20:16:41.500Z"</span>
@@ -975,8 +975,8 @@ coordinate systems every position is expressed in.</p>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Note the second row: a real ball, in a greenside bunker, with no coordinates yet. Your renderer has
-to cope with that. And note the ids: <code>strokeId</code>/<code>playerId</code> are ours, <code>strokeExternalId</code>/
+<p>Note the second row: a real ball, in a greenside bunker, with no coordinates yet. Your renderer will
+meet this case often. And note the ids: <code>strokeId</code>/<code>playerId</code> are ours, <code>strokeExternalId</code>/
 <code>playerExternalId</code> are the ones you sent in <code>upsertStroke</code> and <code>upsertGroups</code> — both are on every
 position, so it joins to your records with or without your id map.</p>
 <p>For live delivery use the <code>ballPositionEvents</code> subscription rather than polling this query —
@@ -1003,20 +1003,19 @@ position, so it joins to your records with or without your id map.</p>
 <li>[ ] <code>ballPositionEvents</code> subscribed, with <code>afterRevision</code> from durable storage</li>
 <li>[ ] <code>holeReferences</code> subscribed — pin positions change daily</li>
 </ul>
-<p>Client correctness — the parts that break in production, not in testing:</p>
+<p>Client correctness — the parts worth exercising before going live, since they rarely surface in testing:</p>
 <ul>
 <li>[ ] Null <code>easting</code>/<code>northing</code>/<code>elevation</code> render correctly</li>
 <li>[ ] <code>retracted: true</code> removes the position from display</li>
 <li>[ ] Same <code>strokeId</code> with a higher <code>revision</code> replaces, not duplicates</li>
 <li>[ ] Cursor persisted after processing, so a restart resumes rather than replays</li>
-<li>[ ] Unknown enum members do not crash the client</li>
 <li>[ ] <code>accepted: false</code> is logged and <strong>not</strong> retried unchanged</li>
 <li>[ ] Transport errors retried with backoff</li>
 <li>[ ] Round numbers ordered by <code>num</code>, not assumed to be 1..4</li>
 </ul>
 <h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>Contract version is in the header of <code>partner-schema.gql</code>. Quote it, plus the <code>roundId</code> and a
-<code>revision</code>, in any query to us — that is enough for us to find the exact records you saw.</p>
+<p>Contract version is in the header of <code>partner-schema.gql</code>. Sending it along with the <code>roundId</code> and a
+<code>revision</code> is enough for us to find the exact records you saw.</p>
 
 
 

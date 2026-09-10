@@ -692,10 +692,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#rejected-payloads-do-not-retry-unchanged" class="md-nav__link">
+  <a href="#rejected-payloads-fix-before-resending" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rejected payloads — do not retry unchanged
+        Rejected payloads — fix before resending
       
     </span>
   </a>
@@ -1067,10 +1067,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#rejected-payloads-do-not-retry-unchanged" class="md-nav__link">
+  <a href="#rejected-payloads-fix-before-resending" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rejected payloads — do not retry unchanged
+        Rejected payloads — fix before resending
       
     </span>
   </a>
@@ -1284,8 +1284,8 @@ added).</p>
 <ul>
 <li><strong><code>length</code> is metres.</strong> <code>6532.0</code> m, not <code>7143</code> yards. It is stored verbatim, so a yardage sent
   here will be published as though it were metres.</li>
-<li><strong><code>utmZone</code> / <code>utmHemisphere</code> are required.</strong> Everything positional in both directions is
-  expressed in this CRS. If you do not know the zone:
+<li><strong><code>utmZone</code> and <code>utmHemisphere</code> set the coordinate system.</strong> Everything positional in both
+  directions is expressed in it, so we need both before we can place anything. If you don't have the zone:
   <code>zone = floor((longitude + 180) / 6) + 1</code>, hemisphere from the sign of the latitude.</li>
 <li>Par is optional but recommended; we pass it through to downstream consumers.</li>
 </ul>
@@ -1387,7 +1387,7 @@ added).</p>
 <span class="p">}</span>
 </code></pre></div>
 <ul>
-<li><strong>Keep the <code>ids</code>.</strong> <code>groupId</code> and <code>playerId</code> are what every <code>upsertStroke</code> needs.</li>
+<li><strong>The <code>ids</code> matter later.</strong> <code>groupId</code> and <code>playerId</code> are what every <code>upsertStroke</code> needs.</li>
 <li><strong>Players are per tournament.</strong> The same player <code>externalId</code> in another round's groups resolves
   to the same <code>playerId</code>, so the map you build in round 1 stays valid all week.</li>
 <li><strong>Colours are integers, <code>0xRRGGBB</code>.</strong> <code>16711680</code> is <code>0xFF0000</code>, red. Send decimal integers in
@@ -1418,7 +1418,7 @@ are no coordinate fields on this input.</p>
 <span class="w">    </span><span class="nt">"strokeNum"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NORMAL"</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OVER_THE_BALL"</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">"fromSurface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OFW"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"fromSurface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FWY"</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"club"</span><span class="p">:</span><span class="w"> </span><span class="s2">"D"</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T20:15:03.076Z"</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"overBallAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-03-14T20:15:33.076Z"</span>
@@ -1469,15 +1469,15 @@ played" sends exactly that and nothing more.</p>
 </tbody>
 </table>
 <p>Because it is keyed on your <code>externalId</code> within the round, resending is safe and successive calls
-progressively enrich one stroke. <strong>At least one timestamp is required</strong>; we take <code>hitAt</code>, else <code>overBallAt</code>, else
+progressively enrich one stroke. We need at least one timestamp, and take <code>hitAt</code>, else <code>overBallAt</code>, else
 <code>createdAt</code> as the stroke time.</p>
 <p><code>holeOrder</code> is the position of this hole in the player's round — <code>13</code> here means the 13th hole
-they played, which is hole 7 because the group started on the back nine. Omit it if you do not
+they played, which is hole 7 because the group started on the back nine. Omit it if you don't
 track it.</p>
 <p>Set <code>kind</code> to <code>PENALTY</code> or <code>DROP</code> when it applies, so downstream consumers can distinguish those from
 a played stroke; <code>PROVISIONAL</code> is available too.</p>
-<p>You do not need to wait for a response before sending the next status — but do check <code>accepted</code>, and
-see <a href="#13-error-handling">Error handling</a>.</p>
+<p>There's no need to wait for a response before sending the next status, though it's worth checking
+<code>accepted</code> — see <a href="#13-error-handling">Error handling</a>.</p>
 <hr />
 <h2 id="5-receiving-ball-positions">5. Receiving ball positions<a class="headerlink" href="#5-receiving-ball-positions" title="Permanent link">&para;</a></h2>
 <p>Two subscriptions over the same data. Use both: one for state, one for the event log.</p>
@@ -1504,7 +1504,7 @@ see <a href="#13-error-handling">Error handling</a>.</p>
 <span class="w">        </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">335230.10</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247788.30</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">30.85</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OFW"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FWY"</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"subSurface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FR"</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VERIFIED"</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"inTheHole"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
@@ -1545,7 +1545,7 @@ scoreboard or a hole overview without replaying history. Filterable by <code>hol
 <p><code>operations/SubscribeToBallPositions.gql</code></p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"roundId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1042"</span><span class="p">,</span><span class="w"> </span><span class="nt">"hole"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<p>It does not give you an ordered log, so do not use it to drive an event pipeline — it can collapse
+<p>It isn't an ordered log, so it's not the right source for an event pipeline — it can collapse
 several changes into one delivery.</p>
 <h3 id="which-positions-you-get">Which positions you get<a class="headerlink" href="#which-positions-you-get" title="Permanent link">&para;</a></h3>
 <p>Positions derived from your own stroke reports are not published back to you; the first position you
@@ -1564,7 +1564,7 @@ null together.</p>
 <span class="w">  </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OGS"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BNK"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"subSurface"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ZONED"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"retracted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
@@ -1626,7 +1626,7 @@ revision 48160  strokeId 88307  state VERIFIED   easting 335230.10   &lt;- same 
 <h3 id="retractions-you-receive">Retractions you receive<a class="headerlink" href="#retractions-you-receive" title="Permanent link">&para;</a></h3>
 <p>A withdrawn stroke's position arrives as a new revision with <code>retracted: true</code>. It is never a silent
 disappearance, so a client that only ever adds rows will show a ball that is no longer in play.</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"revision"</span><span class="p">:</span><span class="w"> </span><span class="mi">48191</span><span class="p">,</span><span class="w"> </span><span class="nt">"strokeId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88307"</span><span class="p">,</span><span class="w"> </span><span class="nt">"retracted"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ZONED"</span><span class="p">,</span><span class="w"> </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OGS"</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"revision"</span><span class="p">:</span><span class="w"> </span><span class="mi">48191</span><span class="p">,</span><span class="w"> </span><span class="nt">"strokeId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88307"</span><span class="p">,</span><span class="w"> </span><span class="nt">"retracted"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ZONED"</span><span class="p">,</span><span class="w"> </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BNK"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p>Treat <code>retracted: true</code> as authoritative and remove the record.</p>
 <h3 id="retractions-you-send">Retractions you send<a class="headerlink" href="#retractions-you-send" title="Permanent link">&para;</a></h3>
@@ -1646,7 +1646,7 @@ needed. Retract only when the stroke should not exist at all.</p>
 <p>Distances are yours to compute. Every coordinate is in one flat metric grid, so it is plain
 Euclidean arithmetic — no projection library, no geodesic formula.</p>
 <p>Ball, from <code>ballPositionEvents</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">335230.10</span><span class="p">,</span><span class="w"> </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247788.30</span><span class="p">,</span><span class="w"> </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">30.85</span><span class="p">,</span><span class="w"> </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OFW"</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">335230.10</span><span class="p">,</span><span class="w"> </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247788.30</span><span class="p">,</span><span class="w"> </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">30.85</span><span class="p">,</span><span class="w"> </span><span class="nt">"surface"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FWY"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p>Pin for the same hole, from <code>holeReferences</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"hole"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PIN"</span><span class="p">,</span><span class="w"> </span><span class="nt">"easting"</span><span class="p">:</span><span class="w"> </span><span class="mf">335316.84</span><span class="p">,</span><span class="w"> </span><span class="nt">"northing"</span><span class="p">:</span><span class="w"> </span><span class="mf">6247894.84</span><span class="p">,</span><span class="w"> </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">32.10</span><span class="w"> </span><span class="p">}</span>
@@ -1731,9 +1731,8 @@ and testing against a completed round before going live.</p>
 positions only, without the revision history.</p>
 <hr />
 <h2 id="13-error-handling">13. Error handling<a class="headerlink" href="#13-error-handling" title="Permanent link">&para;</a></h2>
-<p>Two failure classes, handled differently. Getting this wrong is how integrations end up hammering
-us with a payload that will never be accepted.</p>
-<h3 id="rejected-payloads-do-not-retry-unchanged">Rejected payloads — do not retry unchanged<a class="headerlink" href="#rejected-payloads-do-not-retry-unchanged" title="Permanent link">&para;</a></h3>
+<p>Two failure classes, handled differently — one is worth retrying, the other isn't.</p>
+<h3 id="rejected-payloads-fix-before-resending">Rejected payloads — fix before resending<a class="headerlink" href="#rejected-payloads-fix-before-resending" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">"upsertStroke"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -1745,8 +1744,8 @@ us with a payload that will never be accepted.</p>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p><code>accepted: false</code> means the payload is wrong. Retrying it unchanged will fail identically forever.
-Log it, alert, fix the payload. A call-level problem — an unknown parent id — puts the reason in
+<p><code>accepted: false</code> means something in the payload needs changing, and the same call will get the same
+answer. Log it, alert, and fix before resending. A call-level problem — an unknown parent id — puts the reason in
 <code>message</code> and stores nothing. In a batch (<code>upsertRounds</code>, <code>upsertGroups</code>) an individual bad item
 appears in <code>rejected</code> with its <code>externalId</code> and reason while the rest are stored. Common causes:</p>
 <table>
@@ -1759,7 +1758,7 @@ appears in <code>rejected</code> with its <code>externalId</code> and reason whi
 <tbody>
 <tr>
 <td><code>unknown roundId</code> / <code>unknown tournamentId</code> / <code>unknown courseId</code></td>
-<td>a Bolt6 id you never received, or one from another tournament — <a href="#ids-ours-for-references-yours-for-creation">Ids</a></td>
+<td>a Bolt6 id that wasn't returned to you, or one from another tournament — <a href="#ids-ours-for-references-yours-for-creation">Ids</a></td>
 </tr>
 <tr>
 <td><code>unknown playerId</code> / <code>unknown groupId</code></td>

@@ -608,34 +608,17 @@ endpoint's argument syntax relates to it. The raw file is
 <span class="c"># The course surface a ball lies on.</span>
 <span class="c"># Unrelated to `Course.utmZone`, which is a UTM grid zone.</span>
 <span class="k">enum</span><span class="w"> </span><span class="err">Surface</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">OFW</span><span class="w">    </span><span class="c"># Fairway</span>
-<span class="w">  </span><span class="n">OFW_E</span><span class="w">  </span><span class="c"># Fairway edge</span>
-<span class="w">  </span><span class="n">ORO</span><span class="w">    </span><span class="c"># Rough</span>
-<span class="w">  </span><span class="n">OR1</span><span class="w">    </span><span class="c"># First cut rough</span>
-<span class="w">  </span><span class="n">OR2</span><span class="w">    </span><span class="c"># Second cut rough</span>
-<span class="w">  </span><span class="n">OIR</span><span class="w">    </span><span class="c"># Intermediate rough</span>
-<span class="w">  </span><span class="n">OGR</span><span class="w">    </span><span class="c"># Green</span>
-<span class="w">  </span><span class="n">OGS</span><span class="w">    </span><span class="c"># Greenside bunker</span>
-<span class="w">  </span><span class="n">OFB</span><span class="w">    </span><span class="c"># Fairway bunker</span>
-<span class="w">  </span><span class="n">OWB</span><span class="w">    </span><span class="c"># Waste bunker</span>
-<span class="w">  </span><span class="n">OGB</span><span class="w">    </span><span class="c"># Grass bunker</span>
-<span class="w">  </span><span class="n">OCO</span><span class="w">    </span><span class="c"># Collar / margin</span>
-<span class="w">  </span><span class="n">OTB</span><span class="w">    </span><span class="c"># Tee boxes</span>
-<span class="w">  </span><span class="n">ONA</span><span class="w">    </span><span class="c"># Native area</span>
-<span class="w">  </span><span class="n">OWA</span><span class="w">    </span><span class="c"># Water</span>
-<span class="w">  </span><span class="n">OWS</span><span class="w">    </span><span class="c"># Walk strip</span>
-<span class="w">  </span><span class="n">OPS</span><span class="w">    </span><span class="c"># Pine straw / mulch</span>
-<span class="w">  </span><span class="n">ORK</span><span class="w">    </span><span class="c"># Rocks</span>
-<span class="w">  </span><span class="n">ODO</span><span class="w">    </span><span class="c"># Dirt</span>
-<span class="w">  </span><span class="n">OPT</span><span class="w">    </span><span class="c"># Path</span>
-<span class="w">  </span><span class="n">OCA</span><span class="w">    </span><span class="c"># Cart path</span>
-<span class="w">  </span><span class="n">OTO</span><span class="w">    </span><span class="c"># Tree outline</span>
-<span class="w">  </span><span class="n">OBR</span><span class="w">    </span><span class="c"># Bridge</span>
-<span class="w">  </span><span class="n">OBD</span><span class="w">    </span><span class="c"># Building</span>
-<span class="w">  </span><span class="n">OBO</span><span class="w">    </span><span class="c"># Bush / shrubs</span>
-<span class="w">  </span><span class="n">OSS</span><span class="w">    </span><span class="c"># Step</span>
-<span class="w">  </span><span class="n">OLN</span><span class="w">    </span><span class="c"># Landscaping</span>
-<span class="w">  </span><span class="n">OWL</span><span class="w">    </span><span class="c"># Wall</span>
+<span class="w">  </span><span class="n">TEE</span><span class="w">    </span><span class="c"># Tee box</span>
+<span class="w">  </span><span class="n">FWY</span><span class="w">    </span><span class="c"># Fairway</span>
+<span class="w">  </span><span class="n">INT</span><span class="w">    </span><span class="c"># Intermediate</span>
+<span class="w">  </span><span class="n">RGH</span><span class="w">    </span><span class="c"># Rough</span>
+<span class="w">  </span><span class="n">GRN</span><span class="w">    </span><span class="c"># Green</span>
+<span class="w">  </span><span class="n">GCL</span><span class="w">    </span><span class="c"># Collar / margin</span>
+<span class="w">  </span><span class="n">BNK</span><span class="w">    </span><span class="c"># Bunker</span>
+<span class="w">  </span><span class="n">WTR</span><span class="w">    </span><span class="c"># Water</span>
+<span class="w">  </span><span class="n">NAT</span><span class="w">    </span><span class="c"># Native area</span>
+<span class="w">  </span><span class="n">PTH</span><span class="w">    </span><span class="c"># Path</span>
+<span class="w">  </span><span class="n">NMS</span><span class="w">    </span><span class="c"># Non-movable structure</span>
 <span class="w">  </span><span class="n">OTH</span><span class="w">    </span><span class="c"># Other</span>
 <span class="p">}</span>
 

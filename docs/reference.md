@@ -93,7 +93,7 @@ Format rules:
 - Fractional seconds to at most microsecond precision.
 
 **Stroke time precedence.** When you supply more than one lifecycle time, Bolt6 takes `hitAt`, else
-`overBallAt`, else `createdAt` as the stroke time. At least one is required; a stroke with none is
+`overBallAt`, else `createdAt` as the stroke time. We need at least one; a stroke with none is
 rejected.
 
 ## 5. Which position you receive
@@ -192,8 +192,8 @@ Every write returns a `WriteResult`:
 | `ids` | every entity stored by this call: `{kind, externalId, id}` |
 | `rejected` | in a batch, the individual items that were **not** stored: `{kind, externalId, message}`; the others were |
 
-`accepted: false` means the payload is wrong. **Do not retry unchanged** — it will fail identically.
-Log, alert, fix.
+`accepted: false` means something in the payload needs changing — the same call gets the same answer.
+Log, alert, fix before resending.
 
 ```json
 { "data": { "upsertStroke": { "accepted": false, "message": "unknown roundId '9999'", "ids": [], "rejected": [] } } }
@@ -235,28 +235,25 @@ Course surface a ball lies on. Unrelated to `Course.utmZone`.
 
 | | | | |
 |---|---|---|---|
-| `OFW` Fairway | `OFW_E` Fairway edge | `ORO` Rough | `OR1` First cut rough |
-| `OR2` Second cut rough | `OIR` Intermediate rough | `OGR` Green | `OGS` Greenside bunker |
-| `OFB` Fairway bunker | `OWB` Waste bunker | `OGB` Grass bunker | `OCO` Collar / margin |
-| `OTB` Tee boxes | `ONA` Native area | `OWA` Water | `OWS` Walk strip |
-| `OPS` Pine straw / mulch | `ORK` Rocks | `ODO` Dirt | `OPT` Path |
-| `OCA` Cart path | `OTO` Tree outline | `OBR` Bridge | `OBD` Building |
-| `OBO` Bush / shrubs | `OSS` Step | `OLN` Landscaping | `OWL` Wall |
-| `OTH` Other | | | |
+| `TEE` Tee box | `FWY` Fairway | `INT` Intermediate | `RGH` Rough |
+| `GRN` Green | `GCL` Collar / margin | `BNK` Bunker | `WTR` Water |
+| `NAT` Native area | `PTH` Path | `NMS` Non-movable structure | `OTH` Other |
 
 If your own taxonomy is coarser, map it like this for `fromSurface`:
 
 | You have | Send |
 |---|---|
-| tee | `OTB` |
-| fairway | `OFW` |
-| rough | `ORO` |
-| green | `OGR` |
-| fringe / collar | `OCO` |
-| bunker beside the green | `OGS` |
-| any other bunker | `OFB` |
-| water / penalty area | `OWA` |
-| native / unmaintained area | `ONA` |
+| tee | `TEE` |
+| fairway | `FWY` |
+| first cut / intermediate rough / fairway edge | `INT` |
+| rough | `RGH` |
+| green | `GRN` |
+| fringe / collar | `GCL` |
+| any bunker | `BNK` |
+| water / penalty area | `WTR` |
+| native / unmaintained area | `NAT` |
+| cart path / walk strip | `PTH` |
+| building / wall / bridge / step | `NMS` |
 | anything else | `OTH` |
 
 ### `SubSurface`

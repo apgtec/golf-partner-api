@@ -53,34 +53,17 @@ enum Hemisphere {
 # The course surface a ball lies on.
 # Unrelated to `Course.utmZone`, which is a UTM grid zone.
 enum Surface {
-  OFW    # Fairway
-  OFW_E  # Fairway edge
-  ORO    # Rough
-  OR1    # First cut rough
-  OR2    # Second cut rough
-  OIR    # Intermediate rough
-  OGR    # Green
-  OGS    # Greenside bunker
-  OFB    # Fairway bunker
-  OWB    # Waste bunker
-  OGB    # Grass bunker
-  OCO    # Collar / margin
-  OTB    # Tee boxes
-  ONA    # Native area
-  OWA    # Water
-  OWS    # Walk strip
-  OPS    # Pine straw / mulch
-  ORK    # Rocks
-  ODO    # Dirt
-  OPT    # Path
-  OCA    # Cart path
-  OTO    # Tree outline
-  OBR    # Bridge
-  OBD    # Building
-  OBO    # Bush / shrubs
-  OSS    # Step
-  OLN    # Landscaping
-  OWL    # Wall
+  TEE    # Tee box
+  FWY    # Fairway
+  INT    # Intermediate
+  RGH    # Rough
+  GRN    # Green
+  GCL    # Collar / margin
+  BNK    # Bunker
+  WTR    # Water
+  NAT    # Native area
+  PTH    # Path
+  NMS    # Non-movable structure
   OTH    # Other
 }
 

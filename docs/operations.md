@@ -15,16 +15,22 @@ schema on every change. Fill in the variables shown in the [Integration guide](i
 --8<-- "operations/UpsertCourse.gql"
 ```
 
-## UpsertRounds
+## UpsertRound
 
 ```graphql
---8<-- "operations/UpsertRounds.gql"
+--8<-- "operations/UpsertRound.gql"
 ```
 
-## UpsertGroups
+## UpsertGroup
 
 ```graphql
---8<-- "operations/UpsertGroups.gql"
+--8<-- "operations/UpsertGroup.gql"
+```
+
+## SetupRound
+
+```graphql
+--8<-- "operations/SetupRound.gql"
 ```
 
 ## UpsertStroke
@@ -39,16 +45,10 @@ schema on every change. Fill in the variables shown in the [Integration guide](i
 --8<-- "operations/RetractStroke.gql"
 ```
 
-## GetCourse
+## GetRound
 
 ```graphql
---8<-- "operations/GetCourse.gql"
-```
-
-## GetGroups
-
-```graphql
---8<-- "operations/GetGroups.gql"
+--8<-- "operations/GetRound.gql"
 ```
 
 ## SubscribeToBallPositionEvents

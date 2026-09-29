@@ -1,8 +1,7 @@
-# Withdraw a stroke reported in error, by its Bolt6 strokeId. Bolt6 marks its
-# positions retracted and publishes that as a new revision.
-mutation Query($input: RetractStrokeInput!) {
-    retractStroke(input: $input) {
-        accepted
-        message
-    }
+# Withdraw a stroke reported in error. Its ball position is published again with retracted: true.
+mutation RetractStroke($input: RetractStrokeInput!) {
+  retractStroke(input: $input) {
+    accepted
+    message
+  }
 }

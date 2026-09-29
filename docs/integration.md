@@ -4,9 +4,7 @@ Every use case, in the order you will implement them, with the payloads you send
 Start with [`README.md`](index.md); settle details in [Reference](reference.md).
 
 Examples follow one tournament through setup. Your ids are `T-2026-07`, `C-1`, `R-3`, `G-8`,
-`P-231`, `S-8E8E254E`; the Bolt6 ids Bolt6 assigns to them along the way are `88`, `12`, `1042`,
-`8`, `231`, `88301`. The course is in **UTM zone 56, southern hemisphere** (EPSG:32756). All
-coordinates are metres.
+`P-231`, `S-8E8E254E`. The course is Moore Park, Sydney.
 
 | | Use case | Direction |
 |---|---|---|
@@ -19,182 +17,116 @@ coordinates are metres.
 | 7 | [Corrections and retractions](#7-corrections-and-retractions) | both |
 | 8 | [Computing distances on your side](#8-computing-distances-on-your-side) | your side |
 | 9 | [Pin and tee positions](#9-pin-and-tee-positions) | Bolt6 → you |
-| 10 | [Converting to latitude/longitude](#10-converting-to-latitudelongitude) | your side |
+| 10 | [Converting to UTM](#10-converting-to-utm) | your side |
 | 11 | [Reconnecting and resuming](#11-reconnecting-and-resuming) | your side |
 | 12 | [Replay and backfill](#12-replay-and-backfill) | Bolt6 → you |
 | 13 | [Error handling](#13-error-handling) | your side |
 
-## Ids: ours for references, yours for creation
+## Ids: yours everywhere
 
-Two kinds of id appear everywhere below, and the rule is simple:
+**Anything you create carries your own `providerId`, and anything you refer to, you refer to by that
+same id** — in writes and in reads. Bolt6 stores it and uses it to make creation idempotent (a retry
+after a lost response cannot create a duplicate).
 
-- **Anything you refer to, you refer to by its Bolt6 id** — `tournamentId`, `courseId`, `roundId`,
-  `groupId`, `playerId`, `strokeId`, in writes and in reads.
-- **Anything you create carries your own `externalId`.** Bolt6 stores it, uses it to make creation
-  idempotent (a retry after a lost response cannot create a duplicate), and echoes it back on
-  everything it publishes about that entity.
-
-**Every write returns the Bolt6 ids of what it stored, paired with your `externalId`**, in
-`ids: [{kind, externalId, id}]`. Keep that map on your side — it is the only bookkeeping this
-integration asks of you, and setup produces it naturally:
+A tournament's `providerId` is unique across your data; a course's, round's and player's within their
+tournament; a group's and stroke's within their round. So references carry their parents:
 
 ```
-upsertTournament  ─▶ tournamentId
-upsertCourse      ─▶ courseId          (needs tournamentId)
-upsertRounds      ─▶ roundIds          (needs tournamentId, courseId)
-upsertGroups      ─▶ groupIds, playerIds   (needs roundId)
-upsertStroke      ─▶ strokeId          (needs roundId, groupId, playerId)
+upsertTournament  { providerId }
+upsertCourse      { tournament, providerId }
+upsertRound       { tournament, providerId, course }
+upsertGroup       { tournament, round, providerId, players }
+upsertStroke      { tournament, round, player, providerId }
 ```
 
-Each step needs ids from the one before, so run setup in that order, and re-send whenever
-something changes.
+Parents come first, so run setup in that order, and re-send whenever something changes. Nothing needs
+the response of an earlier call, so several can go in one request as aliases
+([`SetupRound`](operations.md#setupround)); they run in order.
 
 ---
 
 ## 1. Tournament
 
-Send once before the tournament, and again whenever status changes.
+Send once before the tournament, and again whenever it changes.
 
 `operations/UpsertTournament.gql`
 
 ```json
 {
   "input": {
-    "externalId": "T-2026-07",
+    "providerId": "T-2026-07",
     "name": "Sydney Invitational",
-    "status": "IN_PROGRESS",
-    "startDate": "2026-03-12T00:00:00Z",
-    "endDate": "2026-03-15T00:00:00Z"
+    "startDate": "2026-03-12",
+    "endDate": "2026-03-15"
   }
 }
 ```
 
 ```json
-{
-  "data": {
-    "upsertTournament": {
-      "accepted": true,
-      "message": null,
-      "ids": [ { "kind": "TOURNAMENT", "externalId": "T-2026-07", "id": "88" } ],
-      "rejected": []
-    }
-  }
-}
+{ "data": { "upsertTournament": { "accepted": true, "message": null } } }
 ```
-
-`88` is your `tournamentId` from here on. `status` is free text passed through unchanged, so use
-your own vocabulary consistently.
-
-`currentRoundId` names the round in play by its Bolt6 id. You will not have round ids until
-[use case 2](#2-course-and-rounds), so set it by re-sending the tournament once rounds exist — the
-upsert is idempotent, so that is safe at any time.
 
 ---
 
 ## 2. Course and rounds
 
-Two calls, in this order: the course (which declares the coordinate system), then the rounds played
-on it. Send both before any stroke, and re-send whenever they change (a round opens, a playoff is
+Two calls, in this order: the course, then the rounds played on it. Send both before any stroke, and re-send whenever they change (a round opens, a playoff is
 added).
 
-`operations/UpsertCourse.gql` — with the `tournamentId` from use case 1:
+`operations/UpsertCourse.gql`
 
 ```json
 {
   "input": {
-    "tournamentId": "88",
-    "externalId": "C-1",
+    "tournament": "T-2026-07",
+    "providerId": "C-1",
     "name": "Moore Park",
-    "utmZone": 56,
-    "utmHemisphere": "SOUTH",
-    "par": 71,
-    "frontPar": 35,
-    "backPar": 36,
-    "length": 6532.0,
     "holes": [
-      { "number": 1, "par": 4, "length": 370.3 },
-      { "number": 2, "par": 3, "length": 132.6 },
-      { "number": 7, "par": 5, "length": 481.0 }
+      { "number": 1, "par": 4 },
+      { "number": 2, "par": 3 },
+      { "number": 7, "par": 5 }
     ]
   }
 }
 ```
 
 ```json
-{
-  "data": {
-    "upsertCourse": {
-      "accepted": true, "message": null,
-      "ids": [ { "kind": "COURSE", "externalId": "C-1", "id": "12" } ],
-      "rejected": []
-    }
-  }
-}
+{ "data": { "upsertCourse": { "accepted": true, "message": null } } }
 ```
 
-- **`length` is metres.** `6532.0` m, not `7143` yards. It is stored verbatim, so a yardage sent
-  here will be published as though it were metres.
-- **`utmZone` and `utmHemisphere` set the coordinate system.** Everything positional in both
-  directions is expressed in it, so we need both before we can place anything. If you don't have the zone:
-  `zone = floor((longitude + 180) / 6) + 1`, hemisphere from the sign of the latitude.
 - Par is optional but recommended; we pass it through to downstream consumers.
 
-Now the rounds, each pointing at a course by its Bolt6 id:
+Now the rounds, one call each, each pointing at a course by its `providerId`:
 
-`operations/UpsertRounds.gql`
+`operations/UpsertRound.gql`
 
 ```json
-{
-  "input": {
-    "tournamentId": "88",
-    "rounds": [
-      { "externalId": "R-1",  "num": 1,   "courseId": "12", "status": "COMPLETE",    "format": "STROKE" },
-      { "externalId": "R-2",  "num": 2,   "courseId": "12", "status": "COMPLETE",    "format": "STROKE" },
-      { "externalId": "R-3",  "num": 3,   "courseId": "12", "status": "IN_PROGRESS", "format": "STROKE" },
-      { "externalId": "R-PO", "num": 301, "courseId": "12", "status": "PENDING",     "format": "STROKE", "isTeamPlayoff": true }
-    ]
-  }
-}
+{ "input": { "tournament": "T-2026-07", "providerId": "R-3", "num": 3, "course": "C-1" } }
 ```
 
 ```json
-{
-  "data": {
-    "upsertRounds": {
-      "accepted": true, "message": null,
-      "ids": [
-        { "kind": "ROUND", "externalId": "R-1",  "id": "1040" },
-        { "kind": "ROUND", "externalId": "R-2",  "id": "1041" },
-        { "kind": "ROUND", "externalId": "R-3",  "id": "1042" },
-        { "kind": "ROUND", "externalId": "R-PO", "id": "1043" }
-      ],
-      "rejected": []
-    }
-  }
-}
+{ "data": { "upsertRound": { "accepted": true, "message": null } } }
 ```
 
-- **The `roundId`s are the most important ids you will store.** Every read, every group, every
-  stroke is keyed by one — `1042` is round `R-3` for the rest of this guide.
-- **`num` need not be `1..N`.** The playoff round is `301`. Order rounds by `num`; never index by
+- **Every group and stroke is keyed by a round** — `R-3` for the rest of this guide.
+- **`num` need not be `1..N`.** A playoff round might be `301`. Order rounds by `num`; never index by
   it or assume a range.
-- `status` and `format` are free text passed through unchanged, so use your own vocabulary
-  consistently.
 
-Read the course back by round to confirm the CRS and cache `epsg`:
+Read the round back, with its course and holes:
 
-`operations/GetCourse.gql` — `{ "roundId": "1042" }`
+`operations/GetRound.gql` — `{ "tournament": "T-2026-07", "round": "R-3" }`
 
 ```json
 {
   "data": {
-    "course": {
-      "id": "12", "externalId": "C-1",
-      "name": "Moore Park",
-      "utmZone": 56, "utmHemisphere": "SOUTH", "epsg": 32756, "verticalEpsg": 3855,
-      "par": 71, "frontPar": 35, "backPar": 36, "length": 6532.0,
-      "holes": [ { "number": 7, "par": 5, "length": 481.0 } ]
-    }
+    "rounds": [
+      {
+        "providerId": "R-3", "num": 3,
+        "tournament": { "providerId": "T-2026-07", "name": "Sydney Invitational", "startDate": "2026-03-12", "endDate": "2026-03-15" },
+        "course": { "providerId": "C-1", "name": "Moore Park", "holes": [ { "number": 7, "par": 5 } ] },
+        "groups": []
+      }
+    ]
   }
 }
 ```
@@ -203,68 +135,36 @@ Read the course back by round to confirm the CRS and cache `epsg`:
 
 ## 3. Groups and players
 
-Send when the draw is published, and again on any change (a withdrawal, a tee-time delay).
+Send when the draw is published, and again on any change (a withdrawal, a player moving group).
 
-`operations/UpsertGroups.gql`
+`operations/UpsertGroup.gql`, one call per group:
 
 ```json
 {
   "input": {
-    "roundId": "1042",
-    "groups": [
-      {
-        "externalId": "G-8",
-        "startHole": 1,
-        "startHoleOrder": 1,
-        "segment": "AM",
-        "teeTime": "2026-03-14T23:10:00Z",
-        "teeTimeAdjusted": "2026-03-14T23:38:00Z",
-        "players": [
-          {
-            "externalId": "P-231", "order": 1,
-            "firstName": "Tom", "lastName": "Walsh",
-            "country": "NIR", "hometown": "Belfast",
-            "isAmateur": false, "isCaptain": true,
-            "organization": "TEAM-A", "organizationName": "Team Alpha",
-            "hatColor": 16711680, "shirtColor": 16777215, "pantsColor": 255
-          },
-          { "externalId": "P-244", "order": 2, "firstName": "Ana", "lastName": "Ruiz", "country": "ESP" }
-        ]
-      }
+    "tournament": "T-2026-07",
+    "round": "R-3",
+    "providerId": "G-8",
+    "startHole": 1,
+    "startHoleOrder": 1,
+    "segment": "AM",
+    "players": [
+      { "providerId": "P-231", "order": 1, "firstName": "Tom", "lastName": "Walsh" },
+      { "providerId": "P-244", "order": 2, "firstName": "Ana", "lastName": "Ruiz" }
     ]
   }
 }
 ```
 
 ```json
-{
-  "data": {
-    "upsertGroups": {
-      "accepted": true,
-      "message": null,
-      "ids": [
-        { "kind": "GROUP",  "externalId": "G-8",   "id": "8"   },
-        { "kind": "PLAYER", "externalId": "P-231", "id": "231" },
-        { "kind": "PLAYER", "externalId": "P-244", "id": "244" }
-      ],
-      "rejected": []
-    }
-  }
-}
+{ "data": { "upsertGroup": { "accepted": true, "message": null } } }
 ```
 
-- **The `ids` matter later.** `groupId` and `playerId` are what every `upsertStroke` needs.
-- **Players are per tournament.** The same player `externalId` in another round's groups resolves
-  to the same `playerId`, so the map you build in round 1 stays valid all week.
-- **Colours are integers, `0xRRGGBB`.** `16711680` is `0xFF0000`, red. Send decimal integers in
-  JSON, not hex strings. Alpha is not carried. They are per round, since players change outfits
-  daily.
-- **Partial lists are safe at the group level.** Each listed group is upserted; groups you omit are
-  left untouched, so sending a short list never deletes a group. Within a group, however, the
-  `players` list you send is authoritative: a player missing from it is removed from that group. A
-  group that fails validation appears in `rejected` with its `externalId` and the reason; the others
-  are still stored.
-- `teeTime` is scheduled, `teeTimeAdjusted` is after any delay. Send both when you have them.
+- **Players are per tournament.** The same player `providerId` in another round's groups is the same
+  player.
+- **Groups you don't send are left untouched**, so sending only some groups never deletes one. Within
+  a group, however, the `players` list you send is authoritative: a player missing from it is removed
+  from that group.
 
 ---
 
@@ -281,61 +181,57 @@ are no coordinate fields on this input.
 ```json
 {
   "input": {
-    "roundId": "1042",
-    "groupId": "8",
-    "playerId": "231",
-    "externalId": "S-8E8E254E",
+    "tournament": "T-2026-07",
+    "round": "R-3",
+    "player": "P-231",
+    "providerId": "S-8E8E254E",
     "hole": 7,
     "holeOrder": 13,
     "strokeNum": 2,
     "kind": "NORMAL",
     "status": "OVER_THE_BALL",
     "fromSurface": "FWY",
-    "club": "D",
-    "createdAt": "2026-03-14T20:15:03.076Z",
-    "overBallAt": "2026-03-14T20:15:33.076Z"
+    "at": "2026-03-14T20:15:33.076Z",
+    "hatArgb": 16711680,
+    "shirtArgb": 16777215,
+    "pantsArgb": 255
   }
 }
 ```
 
 ```json
-{
-  "data": {
-    "upsertStroke": {
-      "accepted": true,
-      "message": null,
-      "ids": [ { "kind": "STROKE", "externalId": "S-8E8E254E", "id": "88301" } ],
-      "rejected": []
-    }
-  }
-}
+{ "data": { "upsertStroke": { "accepted": true, "message": null } } }
 ```
 
-`roundId`, `groupId` and `playerId` come from the earlier upserts; `externalId` is your own id for
-this stroke, and `88301` is the `strokeId` you would use to retract it.
+`tournament`, `round` and `player` are the ids you sent in the earlier upserts; `providerId` is your
+own id for this stroke.
 
-**The minimum stroke report** is `roundId`, `playerId`, `externalId`, `hole`, `strokeNum` and
-`hitAt`. `kind` defaults to `NORMAL` and `status` to `HIT`, so a system that only knows "a shot was
+**The minimum stroke report** is `tournament`, `round`, `player`, `providerId`, `hole`, `strokeNum`
+and `at`. `kind` defaults to `NORMAL` and `status` to `HIT`, so a system that only knows "a shot was
 played" sends exactly that and nothing more.
 
-If you do have pre-shot events, the full lifecycle is three upserts with the same `externalId`:
+If you do have pre-shot events, the full lifecycle is three upserts with the same `providerId`, each
+with the time (`at`) of its status:
 
-| Status | When | Timestamps to include |
-|---|---|---|
-| `READY` | player has reached the ball | `createdAt` |
-| `OVER_THE_BALL` | player is addressing it | `createdAt`, `overBallAt` |
-| `HIT` | stroke played | `createdAt`, `overBallAt`, `hitAt` |
+| Status | When |
+|---|---|
+| `READY` | player has reached the ball |
+| `OVER_THE_BALL` | player is addressing it |
+| `HIT` | stroke played |
 
-Because it is keyed on your `externalId` within the round, resending is safe and successive calls
-progressively enrich one stroke. We need at least one timestamp, and take `hitAt`, else `overBallAt`, else
-`createdAt` as the stroke time.
+Because it is keyed on your `providerId` within the round, resending is safe and successive calls
+progressively enrich one stroke: a report only changes the fields it carries. The stroke keeps the
+time of its first report.
 
 `holeOrder` is the position of this hole in the player's round — `13` here means the 13th hole
 they played, which is hole 7 because the group started on the back nine. Omit it if you don't
 track it.
 
 Set `kind` to `PENALTY` or `DROP` when it applies, so downstream consumers can distinguish those from
-a played stroke; `PROVISIONAL` is available too.
+a played stroke.
+
+**Colours are integers, `0xRRGGBB`.** `16711680` is `0xFF0000`, red. Send decimal integers in JSON,
+not hex strings. Alpha is not carried.
 
 There's no need to wait for a response before sending the next status, though it's worth checking
 `accepted` — see [Error handling](#13-error-handling).
@@ -348,12 +244,12 @@ Two subscriptions over the same data. Use both: one for state, one for the event
 
 ### `ballPositionEvents` — the event log
 
-Every revision in order, resumable. **This is the one to build on.**
+Every stroke's latest revision, in revision order, resumable. **This is the one to build on.**
 
 `operations/SubscribeToBallPositionEvents.gql`
 
 ```json
-{ "roundId": "1042", "afterRevision": 48120, "batchSize": 50 }
+{ "tournament": "T-2026-07", "round": "R-3", "afterRevision": 48120, "batchSize": 50 }
 ```
 
 ```json
@@ -362,26 +258,27 @@ Every revision in order, resumable. **This is the one to build on.**
     "ballPositionEvents": [
       {
         "revision": 48122,
-        "strokeId": "88301",
-        "playerId": "231",
-        "groupId": "8",
-        "strokeExternalId": "S-8E8E254E",
-        "playerExternalId": "P-231",
-        "groupExternalId": "G-8",
+        "strokeId": 88301,
+        "strokeProviderId": "S-8E8E254E",
         "strokeNum": 2,
         "strokeKind": "NORMAL",
         "hole": 7,
         "holeOrder": 13,
-        "easting": 335230.10,
-        "northing": 6247788.30,
+        "player": { "providerId": "P-231" },
+        "group": { "providerId": "G-8" },
+        "lat": -33.897422,
+        "lon": 151.218017,
         "elevation": 30.85,
         "surface": "FWY",
         "subSurface": "FR",
         "state": "VERIFIED",
         "inTheHole": false,
         "retracted": false,
-        "observedAt": "2026-03-14T20:16:03.076Z",
-        "recordedAt": "2026-03-14T20:16:03.410Z"
+        "hatArgb": 16711680,
+        "shirtArgb": 16777215,
+        "pantsArgb": 255,
+        "observedAt": "2026-03-14T20:16:03.076+00:00",
+        "recordedAt": "2026-03-14T20:16:03.41+00:00"
       }
     ]
   }
@@ -393,7 +290,7 @@ The consuming loop, in full:
 ```python
 cursor = store.get_cursor(round_id) or 0        # durable, per round
 
-async for batch in subscribe(ballPositionEvents, roundId=round_id,
+async for batch in subscribe(ballPositionEvents, tournament=tournament_id, round=round_id,
                              afterRevision=cursor, batchSize=50):
     for p in batch:
         if p["retracted"]:
@@ -404,11 +301,13 @@ async for batch in subscribe(ballPositionEvents, roundId=round_id,
     store.set_cursor(round_id, cursor)          # only after processing
 ```
 
-Four properties to respect:
+Five properties to respect:
 
 - **Key your state on `strokeId`.** There is exactly one position per stroke; a better fix replaces
   it under the same `strokeId`, so an upsert is always the right move.
 - **`revision` only ever increases**, across first fixes, corrections and retractions alike.
+- **You receive each stroke's latest revision.** If a position changes more than once between two
+  deliveries, or while you are disconnected, only the latest revision is delivered.
 - **Delivery is at-least-once.** After a reconnect you may see a revision twice, so make processing
   idempotent on `(strokeId, revision)`.
 - **Persist the cursor after processing, not on receipt.** Crashing between the two should replay,
@@ -417,12 +316,13 @@ Four properties to respect:
 ### `ballPositions` — current state
 
 Current best position per stroke: the set on connect, then updates. Convenient for painting a
-scoreboard or a hole overview without replaying history. Filterable by `hole`.
+scoreboard or a hole overview without replaying history. Add `hole: {_eq: 7}` to its `where` to
+follow one hole.
 
 `operations/SubscribeToBallPositions.gql`
 
 ```json
-{ "roundId": "1042", "hole": 7 }
+{ "tournament": "T-2026-07", "round": "R-3" }
 ```
 
 It isn't an ordered log, so it's not the right source for an event pipeline — it can collapse
@@ -437,25 +337,25 @@ see for a stroke is Bolt6's own. See [Which position you receive](reference.md#5
 
 ## 6. Handling zone-only positions
 
-**The single most common integration bug.** `easting`, `northing` and `elevation` are nullable, and
-null together.
+**The single most common integration bug.** `lat`, `lon` and `elevation` are nullable, and null
+together.
 
 ```json
 {
   "revision": 48125,
-  "strokeId": "88307",
-  "strokeExternalId": "S-7A1C90D2",
-  "playerExternalId": "P-244",
+  "strokeId": 88307,
+  "strokeProviderId": "S-7A1C90D2",
+  "player": { "providerId": "P-244" },
   "hole": 7,
   "strokeNum": 2,
-  "easting": null,
-  "northing": null,
+  "lat": null,
+  "lon": null,
   "elevation": null,
   "surface": "BNK",
   "subSurface": null,
   "state": "ZONED",
   "retracted": false,
-  "observedAt": "2026-03-14T20:16:41.500Z"
+  "observedAt": "2026-03-14T20:16:41.5+00:00"
 }
 ```
 
@@ -476,7 +376,7 @@ Read `state` first:
 if p["state"] == "ZONED":
     view.show_surface_only(p["strokeId"], p["surface"])
 else:
-    view.plot(p["strokeId"], p["easting"], p["northing"], p["elevation"])
+    view.plot(p["strokeId"], p["lat"], p["lon"], p["elevation"])
 ```
 
 A `ZONED` position is superseded by a `VERIFIED` one for the same `strokeId` with a higher
@@ -495,8 +395,8 @@ A corrected position is **the same `strokeId` with a higher `revision`**. Upsert
 it works; append blindly and you get duplicates.
 
 ```
-revision 48125  strokeId 88307  state ZONED      easting null
-revision 48160  strokeId 88307  state VERIFIED   easting 335230.10   <- same stroke, better fix
+revision 48125  strokeId 88307  state ZONED      lat null
+revision 48160  strokeId 88307  state VERIFIED   lat -33.896551   <- same stroke, better fix
 ```
 
 ### Retractions you receive
@@ -505,7 +405,7 @@ A withdrawn stroke's position arrives as a new revision with `retracted: true`. 
 disappearance, so a client that only ever adds rows will show a ball that is no longer in play.
 
 ```json
-{ "revision": 48191, "strokeId": "88307", "retracted": true, "state": "ZONED", "surface": "BNK" }
+{ "revision": 48191, "strokeId": 88307, "retracted": true, "state": "ZONED", "surface": "BNK" }
 ```
 
 Treat `retracted: true` as authoritative and remove the record.
@@ -518,16 +418,15 @@ onward, so every downstream consumer learns about it.
 `operations/RetractStroke.gql`
 
 ```json
-{ "input": { "strokeId": "88301" } }
+{ "input": { "tournament": "T-2026-07", "round": "R-3", "providerId": "S-8E8E254E" } }
 ```
 
 ```json
 { "data": { "retractStroke": { "accepted": true, "message": null } } }
 ```
 
-`strokeId` is the Bolt6 id `upsertStroke` returned — the reason to keep the id map. To *correct*
-rather than withdraw a stroke, just `upsertStroke` again with the same `externalId` — no retraction
-needed. Retract only when the stroke should not exist at all.
+The stroke is named by the ids you reported it with. To *correct* rather than withdraw a stroke,
+just `upsertStroke` again with the same `providerId` — no retraction needed. Retract only when the stroke should not exist at all.
 
 Setup data (tournament, course, groups) has no retraction: correct it by upserting again.
 
@@ -535,31 +434,33 @@ Setup data (tournament, course, groups) has no retraction: correct it by upserti
 
 ## 8. Computing distances on your side
 
-Distances are yours to compute. Every coordinate is in one flat metric grid, so it is plain
-Euclidean arithmetic — no projection library, no geodesic formula.
+Distances are yours to compute. Positions are latitude/longitude; over the size of a course a flat
+local approximation is accurate to centimetres — no projection library, no geodesic formula.
 
 Ball, from `ballPositionEvents`:
 
 ```json
-{ "easting": 335230.10, "northing": 6247788.30, "elevation": 30.85, "surface": "FWY" }
+{ "lat": -33.897422, "lon": 151.218017, "elevation": 30.85, "surface": "FWY" }
 ```
 
 Pin for the same hole, from `holeReferences`:
 
 ```json
-{ "hole": 7, "type": "PIN", "easting": 335316.84, "northing": 6247894.84, "elevation": 32.10 }
+{ "hole": 7, "type": "PIN", "lat": -33.896475, "lon": 151.218975, "elevation": 32.10 }
 ```
 
 ```python
-dE = 335230.10 - 335316.84      #  -86.74 m
-dN = 6247788.30 - 6247894.84    # -106.54 m
-dZ = 30.85 - 32.10              #   -1.25 m
+R = 6371008.8                                                  # mean Earth radius, metres
+lat0 = math.radians(-33.897422)
+dN = math.radians(-33.896475 - -33.897422) * R                 #  105.30 m
+dE = math.radians(151.218975 - 151.218017) * R * math.cos(lat0)  #   88.42 m
+dZ = 32.10 - 30.85                                             #    1.25 m
 
-flat = math.hypot(dE, dN)                 # 137.38 m   (150.2 yd)
-slope = math.sqrt(dE*dE + dN*dN + dZ*dZ)  # 137.39 m
+flat = math.hypot(dE, dN)                 # 137.50 m   (150.4 yd)
+slope = math.sqrt(dE*dE + dN*dN + dZ*dZ)  # 137.51 m
 ```
 
-So 137.38 m — 150.2 yards — to the pin. Convert for display if your audience expects yards
+So 137.50 m — 150.4 yards — to the pin. Convert for display if your audience expects yards
 (`× 1.09361`); the wire stays metric.
 
 Same arithmetic for distance travelled (previous resting position → current) and distance from the
@@ -576,15 +477,15 @@ Pin positions change daily, so read them per round and never cache across rounds
 `operations/SubscribeToHoleReferences.gql`
 
 ```json
-{ "roundId": "1042" }
+{ "tournament": "T-2026-07", "round": "R-3" }
 ```
 
 ```json
 {
   "data": {
     "holeReferences": [
-      { "hole": 7, "type": "PIN", "easting": 335316.84, "northing": 6247894.84, "elevation": 32.10, "updatedAt": "2026-03-14T18:02:11.000Z" },
-      { "hole": 7, "type": "TEE", "easting": 334902.55, "northing": 6247490.18, "elevation": 35.40, "updatedAt": "2026-03-14T17:44:02.000Z" }
+      { "hole": 7, "type": "PIN", "lat": -33.896475, "lon": 151.218975, "elevation": 32.1, "updatedAt": "2026-03-14T18:02:11+00:00" },
+      { "hole": 7, "type": "TEE", "lat": -33.900094, "lon": 151.214398, "elevation": 35.4, "updatedAt": "2026-03-14T17:44:02+00:00" }
     ]
   }
 }
@@ -596,25 +497,22 @@ value a future revision adds.
 
 ---
 
-## 10. Converting to latitude/longitude
+## 10. Converting to UTM
 
-If your downstream needs geographic coordinates, convert with any standard library using the `epsg`
-from `course`. Nothing bespoke is involved — it is a published EPSG code.
+If your downstream needs a projected grid, convert with any standard library. Nothing bespoke is
+involved — positions are plain WGS84, EPSG:4326.
 
 ```python
 from pyproj import Transformer
 
-# epsg comes from the course query: 32756 for UTM 56 South
-to_wgs84 = Transformer.from_crs("EPSG:32756", "EPSG:4326", always_xy=True)
+# Moore Park is in UTM zone 56 South: EPSG:32756
+to_utm = Transformer.from_crs("EPSG:4326", "EPSG:32756", always_xy=True)
 
-lon, lat = to_wgs84.transform(335230.10, 6247788.30)
-# lat = -33.897422, lon = 151.218017
+easting, northing = to_utm.transform(151.218017, -33.897422)
+# easting = 335230.10, northing = 6247788.30
 ```
 
-The pin from the previous section converts to `lat -33.896475, lon 151.218975`.
-
-Prefer to stay in UTM where you can: distances are direct, and every round-trip through
-latitude/longitude costs precision.
+The pin from the previous section converts to `335316.84 E, 6247894.84 N`.
 
 `elevation` is passed through unchanged and is not part of the horizontal conversion — see the
 vertical datum note in [Coordinates](reference.md#2-coordinates).
@@ -630,7 +528,7 @@ cursor = store.get_cursor(round_id) or 0
 
 while running:
     try:
-        async for batch in subscribe(ballPositionEvents, roundId=round_id,
+        async for batch in subscribe(ballPositionEvents, tournament=tournament_id, round=round_id,
                                      afterRevision=cursor, batchSize=50):
             for p in batch:
                 apply(p)
@@ -651,8 +549,8 @@ If you lose the cursor, `afterRevision: 0` rebuilds state from scratch — corre
 
 ## 12. Replay and backfill
 
-`afterRevision: 0` replays a round from the beginning, in revision order, including every
-correction and retraction. Replaying into the same idempotent handler converges on the same state.
+`afterRevision: 0` replays a round from the beginning, in revision order: every stroke's latest
+revision, retractions included. Replaying into the same idempotent handler converges on the same state.
 
 Useful for backfilling a round you were offline for, rebuilding after a schema change on your side,
 and testing against a completed round before going live.
@@ -673,25 +571,23 @@ Two failure classes, handled differently — one is worth retrying, the other is
   "data": {
     "upsertStroke": {
       "accepted": false,
-      "message": "unknown roundId '9999'",
-      "ids": [],
-      "rejected": []
+      "message": "unknown round 'R-9' in tournament 'T-2026-07'"
     }
   }
 }
 ```
 
 `accepted: false` means something in the payload needs changing, and the same call will get the same
-answer. Log it, alert, and fix before resending. A call-level problem — an unknown parent id — puts the reason in
-`message` and stores nothing. In a batch (`upsertRounds`, `upsertGroups`) an individual bad item
-appears in `rejected` with its `externalId` and reason while the rest are stored. Common causes:
+answer. Log it, alert, and fix before resending. The reason is in `message`, and a rejected call stores
+nothing. Several calls in one request each get their own result. Common causes:
 
 | `message` | Cause |
 |---|---|
-| `unknown roundId` / `unknown tournamentId` / `unknown courseId` | a Bolt6 id that wasn't returned to you, or one from another tournament — [Ids](#ids-ours-for-references-yours-for-creation) |
-| `unknown playerId` / `unknown groupId` | not returned by `upsertGroups` for this round — [use case 3](#3-groups-and-players) |
-| `no stroke timestamp supplied` | none of `createdAt` / `overBallAt` / `hitAt` present |
-| `duplicate hole number` | two `holes` entries with the same `number` in one `upsertCourse` — [use case 2](#2-course-and-rounds) |
+| `unknown tournament` / `unknown round` / `unknown course` | a parent not sent yet, or its `providerId` belongs to another tournament — [Ids](#ids-yours-everywhere) |
+| `unknown player` | not in any group sent with `upsertGroup` for this tournament — [use case 3](#3-groups-and-players) |
+| `unknown stroke` | retracting a stroke that was never reported |
+| `invalid time` | `at` isn't an ISO 8601 time |
+| `hole '7' is listed twice` | two `holes` entries with the same `number` in one `upsertCourse` — [use case 2](#2-course-and-rounds) |
 
 ### Transport and auth errors — retry with backoff
 
@@ -701,7 +597,7 @@ These arrive as GraphQL `errors`, not as `accepted: false`:
 { "errors": [ { "message": "Could not verify JWT: JWTExpired" } ] }
 ```
 
-Retry with exponential backoff and jitter. Refresh the token on an auth error rather than retrying
-the same expired one.
+Retry with exponential backoff and jitter. Get a new token on an auth error rather than retrying the
+same expired one.
 
 Full semantics in [Errors](reference.md#9-errors).

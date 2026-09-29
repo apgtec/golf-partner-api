@@ -1,0 +1,13 @@
+# The whole setup of a round in one request: aliased mutations run in order, each with its own result.
+# Nothing is threaded between them: every reference is your own providerId.
+mutation SetupRound(
+  $tournament: TournamentInput!
+  $course: CourseInput!
+  $round: RoundInput!
+  $group: GroupInput!
+) {
+  tournament: upsertTournament(input: $tournament) { accepted message }
+  course: upsertCourse(input: $course) { accepted message }
+  round: upsertRound(input: $round) { accepted message }
+  group: upsertGroup(input: $group) { accepted message }
+}

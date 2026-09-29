@@ -1,0 +1,35 @@
+# A round with its tournament, course, holes and groups, by your provider ids.
+query GetRound($tournament: String!, $round: String!) {
+  rounds(where: {providerId: {_eq: $round}, tournament: {providerId: {_eq: $tournament}}}) {
+    providerId
+    num
+    tournament {
+      providerId
+      name
+      startDate
+      endDate
+    }
+    course {
+      providerId
+      name
+      holes(order_by: {number: asc}) {
+        number
+        par
+      }
+    }
+    groups(order_by: {startHoleOrder: asc}) {
+      providerId
+      startHole
+      startHoleOrder
+      segment
+      players(order_by: {order: asc}) {
+        order
+        player {
+          providerId
+          firstName
+          lastName
+        }
+      }
+    }
+  }
+}

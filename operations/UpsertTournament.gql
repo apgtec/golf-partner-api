@@ -1,10 +1,7 @@
-# Tournament structure and status. Idempotent upsert keyed by your externalId.
-# Returns the Bolt6 tournament id you use for upsertCourse and upsertRounds.
-mutation Query($input: TournamentInput!) {
-    upsertTournament(input: $input) {
-        accepted
-        message
-        ids { kind externalId id }
-        rejected { kind externalId message }
-    }
+# Tournament name and dates. Idempotent upsert keyed by your providerId.
+mutation UpsertTournament($input: TournamentInput!) {
+  upsertTournament(input: $input) {
+    accepted
+    message
+  }
 }

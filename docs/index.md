@@ -8,14 +8,14 @@ integrate: send us the scorecard and stroke state, receive ball, pin and tee pos
 | | Scoring Provider | Ball Positioning Provider |
 |---|---|---|
 | Tournament and round structure | ✔ | |
-| Course, holes, par, hole length | ✔ | |
-| Groups, players, tee times | ✔ | |
+| Course, holes, par | ✔ | |
+| Groups, players | ✔ | |
 | Strokes, and stroke state if you have it | ✔ | |
 | **Ball positions** | | ✔ |
 | **Pin and tee positions** | | ✔ |
 
 Distances — to the pin, travelled, to the fairway edge — you compute from the positions we publish.
-They are all in one flat metric coordinate system, so it is Euclidean arithmetic:
+They are latitude/longitude; over a course, a flat local approximation is all it takes:
 [Computing distances](integration.md#8-computing-distances-on-your-side).
 
 ## Package contents
@@ -36,13 +36,12 @@ These are easier to design around now than to retrofit later.
 
 1. **Ball coordinates can be null.** When we know the ball is in the left greenside bunker but have
    not yet fixed its coordinates, you get `state: ZONED`, a populated `surface`, and
-   `easting`/`northing`/`elevation` all null. This is the normal state of every stroke before the
+   `lat`/`lon`/`elevation` all null. This is the normal state of every stroke before the
    ball is located — not an error, not rare. See
    [Zone-only positions](integration.md#6-handling-zone-only-positions).
-2. **Coordinates are UTM metres, not latitude/longitude.** One integer (`utmZone`) plus a hemisphere
-   defines the horizontal system, `verticalEpsg` the vertical. See
+2. **Coordinates are WGS84 latitude/longitude**, with `elevation` in metres. See
    [Coordinates](reference.md#2-coordinates).
-3. **Everything is metric.** Hole length in metres, not yards; values are stored exactly as sent.
+3. **Everything is metric.** Elevation, and the distances you compute from positions, are metres.
 4. **Positions get corrected and withdrawn.** There is one position per stroke; a correction arrives
    as the same `strokeId` with a higher `revision`, a withdrawal with `retracted: true`. Both
    arrive on the same `strokeId`, so a single handler covers them. See
@@ -57,14 +56,10 @@ These are easier to design around now than to retrofit later.
   Apollo, urql.
 - **Credentials.** We issue you a bearer JWT during onboarding.
 - **Your own stable ids** for tournament, course, round, group, player and stroke, sent as
-  `externalId` when you create each one. Use whatever key space you already have. Creation is an
-  idempotent upsert on `externalId`, so retries are safe.
-- **A map from your ids to ours.** Every write returns the Bolt6 ids of what it stored, paired with
-  your `externalId`; every later reference — reads, strokes, retractions — uses the Bolt6 id. See
-  [Ids](integration.md#ids-ours-for-references-yours-for-creation).
+  `providerId` when you create each one, and used to refer to it from then on. Use whatever key space
+  you already have. Creation is an idempotent upsert on `providerId`, so retries are safe. See
+  [Ids](integration.md#ids-yours-everywhere).
 - **Durable storage for one integer** per round — the last `revision` you processed.
-- **The course's UTM zone.** Send it in `upsertCourse`. If you don't have it to hand, it derives from the
-  course's longitude: `zone = floor((longitude + 180) / 6) + 1`.
 
 ## Endpoint
 
@@ -82,51 +77,41 @@ Authenticate with `Authorization: Bearer <jwt>` on both. Details in
 ## Quickstart
 
 The fastest end-to-end check is to create a tournament and read it back — it exercises
-authentication, a write, the id handshake, and a read in two calls.
+authentication, a write and a read in two calls.
 
 ```bash
 curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
   -H "Authorization: Bearer $BOLT6_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{
-    "query": "mutation($input: TournamentInput!) { upsertTournament(input: $input) { accepted message ids { kind externalId id } } }",
-    "variables": { "input": { "externalId": "T-2026-07", "name": "Sydney Invitational" } }
+    "query": "mutation($input: TournamentInput!) { upsertTournament(input: $input) { accepted message } }",
+    "variables": { "input": { "providerId": "T-2026-07", "name": "Sydney Invitational", "startDate": "2026-03-12", "endDate": "2026-03-15" } }
   }'
 ```
 
 ```json
-{
-  "data": {
-    "upsertTournament": {
-      "accepted": true,
-      "message": null,
-      "ids": [ { "kind": "TOURNAMENT", "externalId": "T-2026-07", "id": "88" } ]
-    }
-  }
-}
+{ "data": { "upsertTournament": { "accepted": true, "message": null } } }
 ```
 
-That `id: "88"` is the pattern for the whole integration: you sent your id, we returned ours, and
-from now on you refer to this tournament as `88`. Read it back:
+That is the pattern for the whole integration: you name everything by your own id, and refer to it by
+that same id from then on. Read it back:
 
 ```bash
 curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
   -H "Authorization: Bearer $BOLT6_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{
-    "query": "query($id: ID!) { tournament(id: $id) { id externalId name } }",
-    "variables": { "id": "88" }
+    "query": "query($id: String!) { tournaments(where: {providerId: {_eq: $id}}) { providerId name startDate endDate } }",
+    "variables": { "id": "T-2026-07" }
   }'
 ```
 
 ```json
-{ "data": { "tournament": { "id": "88", "externalId": "T-2026-07", "name": "Sydney Invitational" } } }
+{ "data": { "tournaments": [ { "providerId": "T-2026-07", "name": "Sydney Invitational", "startDate": "2026-03-12", "endDate": "2026-03-15" } ] } }
 ```
 
-The rest of setup follows the same handshake — course, then rounds, then groups — each returning the
-ids the next step needs ([Integration guide](integration.md#ids-ours-for-references-yours-for-creation)).
-Once rounds exist, `course(roundId:)` gives you `epsg: 32756` and `verticalEpsg: 3855`, the
-coordinate systems every position is expressed in.
+The rest of setup follows the same pattern — course, then rounds, then groups — and can go in a
+single request ([Integration guide](integration.md#ids-yours-everywhere)).
 
 Once play starts, positions look like this:
 
@@ -135,8 +120,8 @@ curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
   -H "Authorization: Bearer $BOLT6_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{
-    "query": "query($roundId: ID!, $hole: Int) { ballPositions(roundId: $roundId, hole: $hole) { revision strokeId strokeExternalId playerId playerExternalId hole strokeNum easting northing elevation surface state retracted observedAt } }",
-    "variables": { "roundId": "1042", "hole": 7 }
+    "query": "query($round: String!, $hole: Int!) { ballPositions(where: {round: {providerId: {_eq: $round}}, hole: {_eq: $hole}}) { revision strokeId strokeProviderId player { providerId } hole strokeNum lat lon elevation surface state retracted observedAt } }",
+    "variables": { "round": "R-3", "hole": 7 }
   }'
 ```
 
@@ -146,35 +131,33 @@ curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
     "ballPositions": [
       {
         "revision": 48122,
-        "strokeId": "88301",
-        "strokeExternalId": "S-8E8E254E",
-        "playerId": "231",
-        "playerExternalId": "P-231",
+        "strokeId": 88301,
+        "strokeProviderId": "S-8E8E254E",
+        "player": { "providerId": "P-231" },
         "hole": 7,
         "strokeNum": 2,
-        "easting": 335230.10,
-        "northing": 6247788.30,
+        "lat": -33.897422,
+        "lon": 151.218017,
         "elevation": 30.85,
         "surface": "FWY",
         "state": "VERIFIED",
         "retracted": false,
-        "observedAt": "2026-03-14T20:16:03.076Z"
+        "observedAt": "2026-03-14T20:16:03.076+00:00"
       },
       {
         "revision": 48125,
-        "strokeId": "88307",
-        "strokeExternalId": "S-7A1C90D2",
-        "playerId": "244",
-        "playerExternalId": "P-244",
+        "strokeId": 88307,
+        "strokeProviderId": "S-7A1C90D2",
+        "player": { "providerId": "P-244" },
         "hole": 7,
         "strokeNum": 2,
-        "easting": null,
-        "northing": null,
+        "lat": null,
+        "lon": null,
         "elevation": null,
         "surface": "BNK",
         "state": "ZONED",
         "retracted": false,
-        "observedAt": "2026-03-14T20:16:41.500Z"
+        "observedAt": "2026-03-14T20:16:41.5+00:00"
       }
     ]
   }
@@ -182,9 +165,8 @@ curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
 ```
 
 Note the second row: a real ball, in a greenside bunker, with no coordinates yet. Your renderer will
-meet this case often. And note the ids: `strokeId`/`playerId` are ours, `strokeExternalId`/
-`playerExternalId` are the ones you sent in `upsertStroke` and `upsertGroups` — both are on every
-position, so it joins to your records with or without your id map.
+meet this case often. And note the ids: `strokeId` is ours, `strokeProviderId` and `player.providerId`
+are the ones you sent in `upsertStroke` and `upsertGroup`, so it joins to your records directly.
 
 For live delivery use the `ballPositionEvents` subscription rather than polling this query —
 [Receiving ball positions](integration.md#5-receiving-ball-positions).
@@ -194,16 +176,14 @@ For live delivery use the `ballPositionEvents` subscription rather than polling 
 Setup, once:
 
 - [ ] Credentials verified against the quickstart above
-- [ ] Your external ids stable and unique per entity
-- [ ] The Bolt6 ids from every `ids` list persisted against your external ids
+- [ ] Your provider ids stable and unique per entity
 
 Before play, in this order:
 
-- [ ] `upsertTournament` — returns `tournamentId`
-- [ ] `upsertCourse` — holes, par, hole length in **metres**, `utmZone` / `utmHemisphere`; returns `courseId`
-- [ ] `upsertRounds` — returns the `roundId`s everything else is keyed by
-- [ ] `upsertGroups` — groups, players, tee times; returns `groupId`s and `playerId`s
-- [ ] `course` read back by `roundId`, and `epsg` / `verticalEpsg` stored
+- [ ] `upsertTournament`
+- [ ] `upsertCourse` — holes and par
+- [ ] `upsertRound` for each round
+- [ ] `upsertGroup` for each group, with its players
 
 During play:
 
@@ -214,7 +194,7 @@ During play:
 
 Client correctness — the parts worth exercising before going live, since they rarely surface in testing:
 
-- [ ] Null `easting`/`northing`/`elevation` render correctly
+- [ ] Null `lat`/`lon`/`elevation` render correctly
 - [ ] `retracted: true` removes the position from display
 - [ ] Same `strokeId` with a higher `revision` replaces, not duplicates
 - [ ] Cursor persisted after processing, so a restart resumes rather than replays
@@ -224,5 +204,5 @@ Client correctness — the parts worth exercising before going live, since they 
 
 ## Support
 
-Contract version is in the header of `partner-schema.gql`. Sending it along with the `roundId` and a
+Contract version is in the header of `partner-schema.gql`. Sending it along with the round's `providerId` and a
 `revision` is enough for us to find the exact records you saw.

@@ -1,28 +1,28 @@
-# Current best position per stroke. State semantics.
-subscription Query(
-    $roundId: ID!
-    $hole: Int
-) {
-    ballPositions(roundId: $roundId, hole: $hole) {
-        revision
-        strokeId
-        strokeExternalId
-        strokeNum
-        playerId
-        playerExternalId
-        groupId
-        groupExternalId
-        hole
-        holeOrder
-        easting
-        northing
-        elevation
-        surface
-        subSurface
-        state
-        inTheHole
-        retracted
-        observedAt
-        recordedAt
+# The current best position of every stroke of a round. State semantics: the current set on connect,
+# then the whole set again on every change. Add `hole: {_eq: 7}` to the where to follow one hole.
+subscription SubscribeToBallPositions($tournament: String!, $round: String!) {
+  ballPositions(
+    where: {round: {providerId: {_eq: $round}, tournament: {providerId: {_eq: $tournament}}}}
+    order_by: {strokeId: asc}
+  ) {
+    revision
+    strokeId
+    strokeProviderId
+    strokeNum
+    strokeKind
+    hole
+    holeOrder
+    player {
+      providerId
     }
+    lat
+    lon
+    elevation
+    surface
+    subSurface
+    state
+    inTheHole
+    retracted
+    observedAt
+  }
 }

@@ -1,0 +1,7 @@
+# A round of a tournament, played on one of its courses. Every group and stroke is keyed by it.
+mutation UpsertRound($input: RoundInput!) {
+  upsertRound(input: $input) {
+    accepted
+    message
+  }
+}

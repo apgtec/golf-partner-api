@@ -1,13 +1,14 @@
-# Pin and tee positions for this round. Pins move daily.
-subscription Query(
-    $roundId: ID!
-) {
-    holeReferences(roundId: $roundId) {
-        hole
-        type
-        easting
-        northing
-        elevation
-        updatedAt
-    }
+# Pin and tee positions of a round. Pins move daily: subscribe rather than cache.
+subscription SubscribeToHoleReferences($tournament: String!, $round: String!) {
+  holeReferences(
+    where: {round: {providerId: {_eq: $round}, tournament: {providerId: {_eq: $tournament}}}}
+    order_by: [{hole: asc}, {type: asc}]
+  ) {
+    hole
+    type
+    lat
+    lon
+    elevation
+    updatedAt
+  }
 }

@@ -1,0 +1,9 @@
+# A group (pairing) of a round with its players. The players listed are exactly the group's players:
+# anyone left out is removed from it. Players belong to the tournament, so the same providerId in another
+# round is the same player.
+mutation UpsertGroup($input: GroupInput!) {
+  upsertGroup(input: $input) {
+    accepted
+    message
+  }
+}

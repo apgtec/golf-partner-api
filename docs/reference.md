@@ -4,7 +4,7 @@ Normative semantics for the Bolt6 golf data-exchange contract. Types live in
 [`partner-schema.gql`](schema.md); this document carries what SDL cannot express. For
 worked examples see [Integration guide](integration.md).
 
-**Contract version 1.0.0-draft.**
+**Contract version 1.1.0-draft.**
 
 ## 1. Scope
 
@@ -16,50 +16,35 @@ state.
 |---|---|---|
 | Ball positions | Bolt6 | `ballPositions`, `ballPositionEvents` |
 | Pin and tee positions | Bolt6 | `holeReferences` |
-| Coordinate reference system | you declare, Bolt6 publishes | `Course.utmZone` |
-| Course, holes, par, hole length | you | `upsertCourse` |
-| Tournament and rounds | you | `upsertTournament`, `upsertRounds` |
-| Groups and players | you | `upsertGroups` |
+| Course, holes, par | you | `upsertCourse` |
+| Tournament and rounds | you | `upsertTournament`, `upsertRound` |
+| Groups and players | you | `upsertGroup` |
 | Stroke state | you | `upsertStroke`, `retractStroke` |
 
 ### Ids
 
-Two kinds of id, one rule: **our id for anything you refer to, your id for anything you create.**
+One rule: **your id for everything.**
 
-- Bolt6 ids (`id`, `roundId`, `playerId`, …) are opaque and stable. Every reference you make — in
-  reads and in writes — uses them.
-- Your `externalId` is the key you give an entity when you create it. Bolt6 stores it, keys the
-  idempotent upsert on it within the parent (so a retry after a lost response cannot create a
-  duplicate), and echoes it on everything it publishes about that entity — `strokeExternalId`,
-  `playerExternalId`, `groupExternalId` on positions, `externalId` on every read type.
-
-Every write returns `ids: [{kind, externalId, id}]` for what it stored. Keep the map.
+- Your `providerId` is the key you give an entity when you create it, and the one every reference you
+  make uses, in reads and in writes. Bolt6 keys the idempotent upsert on it within the parent (so a
+  retry after a lost response cannot create a duplicate): a tournament's is unique across your data, a
+  course's, round's and player's within their tournament, a group's and stroke's within their round.
+- Read types also carry Bolt6's own ids (`id`, `strokeId`), opaque and stable. You never need them to
+  write; `strokeId` is the identity of a ball position, including for strokes you never reported (their
+  `strokeProviderId` is null).
 
 ## 2. Coordinates
 
-**One coordinate system: standard UTM on WGS84, in metres.** Every position — ball, pin, tee — is
-`easting`, `northing`, `elevation`, all metres.
+**One coordinate system: WGS84 latitude and longitude.** Every position — ball, pin, tee — is
+`lat`, `lon` in decimal degrees (EPSG:4326), plus `elevation` in metres.
 
-The CRS is declared once per course as `utmZone` plus `utmHemisphere`, equivalently the `epsg`
-field: `32600 + zone` in the northern hemisphere, `32700 + zone` in the southern.
-
-These are ordinary EPSG projected CRSs, so any standard geospatial library interprets them without
-configuration. Zone 56 south is EPSG:32756; a position of `335230.10 E, 6247788.30 N` in it is
-unambiguous.
-
-Each course sits in a single zone, so distances within a course are plain Euclidean arithmetic —
-see [use case 8](integration.md#8-computing-distances-on-your-side).
+These are ordinary geographic coordinates, so any standard geospatial library interprets them without
+configuration. Over the size of a course, a flat local approximation gives distances to the
+centimetre — see [use case 8](integration.md#8-computing-distances-on-your-side).
 
 ### Vertical datum
 
-UTM is a two-dimensional projection: `epsg` defines easting and northing only. `elevation` is
-declared separately, by `verticalEpsg`.
-
-**`elevation` is orthometric height above the EGM2008 geoid — EPSG:3855 — in metres.** That is
-height above mean sea level in the ordinary sense, and it is the same declaration at every venue.
-
-Combine the two codes when you need a full 3D CRS: `epsg` for the horizontal plus `verticalEpsg` for
-the vertical, e.g. EPSG:32756 + EPSG:3855.
+`elevation` is height in metres, published as Bolt6 measures it.
 
 Elevation is accurate to roughly ±1 m absolute. Differences between two Bolt6 positions —
 ball-to-pin, for instance — are much tighter than that.
@@ -69,13 +54,10 @@ ball-to-pin, for instance — are much tighter than that.
 | Quantity | Unit |
 |---|---|
 | Positions, elevations | metres |
-| Hole and course length | metres |
 | Colours | `0xRRGGBB` integer, alpha not carried |
-| Timestamps | ISO 8601 UTC, explicit `Z` |
+| Timestamps | ISO 8601 with offset; UTC in what we send |
 
-Hole length you send in `upsertCourse` is stored verbatim and not converted, so a yardage sent there
-will be republished as though it were metres. Convert for display on your side
-(`metres × 1.09361` for yards).
+Convert distances for display on your side (`metres × 1.09361` for yards).
 
 ## 4. Time
 
@@ -85,16 +67,14 @@ Three distinct times, named separately.
 |---|---|
 | `observedAt` | when the observation was made, on the observing system's clock |
 | `recordedAt` | when Bolt6 recorded it |
-| `createdAt` / `overBallAt` / `hitAt` | stroke lifecycle times, supplied by you |
+| `at` | when a reported stroke status happened, supplied by you |
 
 Format rules:
 
-- Always UTC with a literal `Z`. Send `2026-03-14T20:16:03.076Z`, not `+00:00`.
+- Send any ISO 8601 time with an offset (`2026-03-14T20:16:03.076Z`); we store UTC and send times back as `+00:00`.
 - Fractional seconds to at most microsecond precision.
 
-**Stroke time precedence.** When you supply more than one lifecycle time, Bolt6 takes `hitAt`, else
-`overBallAt`, else `createdAt` as the stroke time. We need at least one; a stroke with none is
-rejected.
+**Stroke time.** A stroke keeps the `at` of its first report; each report records its own `at`.
 
 ## 5. Which position you receive
 
@@ -108,8 +88,8 @@ published position is Bolt6's own. `state` tells you how much is known about it:
 
 ## 6. Nullability
 
-**`easting`, `northing` and `elevation` are nullable, and null together.** `surface` is always
-populated.
+**`lat`, `lon` and `elevation` are nullable, and null together.** `surface` is almost always
+populated: it is null only when Bolt6 has coordinates but no surface for them.
 
 | `state` | Coordinates |
 |---|---|
@@ -128,7 +108,7 @@ a stroke between the ball coming to rest and being located — not rare, and not
 |---|---|
 | `subscription ballPositionEvents` | queue: ordered by `revision`, resumable, at-least-once |
 | `subscription ballPositions` | state: current set on connect, then updates |
-| `subscription holeReferences`, `course`, `groups` | state |
+| `subscription holeReferences`, `rounds`, `groups`, `players`, `tournaments` | state |
 | `query *` | point-in-time read |
 
 ### Revisions
@@ -140,11 +120,14 @@ stream.
 - A **correction** is the same `strokeId` with a higher `revision`. Key your state on `strokeId`
   and upsert.
 - A **retraction** is a new `revision` with `retracted: true`. Never a silent removal.
+- You receive **each stroke's latest revision**: if a position changes more than once between two
+  deliveries, or while you are disconnected, only the latest is delivered.
 
 ### Cursors
 
-`ballPositionEvents` takes `afterRevision`; you pass the highest revision you have durably
-processed. `0` replays the round from the beginning.
+`ballPositionEvents` takes a cursor, `cursor: {initial_value: {revision: N}}`, and a required
+`batch_size`; for `N` you pass the highest revision you have durably processed. `0` replays the round
+from the beginning.
 
 Bolt6 keeps **no per-consumer delivery state**. Consequences:
 
@@ -171,11 +154,10 @@ For WebSocket subscriptions, send the same header inside the `connection_init` f
 ```
 
 One credential covers both directions: it reads the published positions and sends your upserts.
-It is scoped to you: requests only ever see or touch tournaments you created, and a Bolt6 id from
-anyone else's tournament is simply unknown to you.
 
-Tokens expire. Refresh on an auth error rather than retrying an expired token. Rotate credentials
-through the contact you were onboarded with.
+Tokens expire: we send you a new one before its `exp`. On an auth error (`invalid-jwt`), get a new
+token rather than retrying an expired one. Rotate credentials through the contact you were onboarded
+with.
 
 ## 9. Errors
 
@@ -187,16 +169,14 @@ Every write returns a `WriteResult`:
 
 | Field | Meaning |
 |---|---|
-| `accepted` | `true` when nothing was rejected |
-| `message` | reason for a **call-level** rejection — an unknown parent id, for instance — in which case nothing was stored |
-| `ids` | every entity stored by this call: `{kind, externalId, id}` |
-| `rejected` | in a batch, the individual items that were **not** stored: `{kind, externalId, message}`; the others were |
+| `accepted` | `true` when the write was stored |
+| `message` | when `accepted` is `false`, the reason — an unknown parent, for instance; nothing was stored |
 
 `accepted: false` means something in the payload needs changing — the same call gets the same answer.
 Log, alert, fix before resending.
 
 ```json
-{ "data": { "upsertStroke": { "accepted": false, "message": "unknown roundId '9999'", "ids": [], "rejected": [] } } }
+{ "data": { "upsertStroke": { "accepted": false, "message": "unknown round 'R-9' in tournament 'T-2026-07'" } } }
 ```
 
 Several mutations in one request execute **in order, but not as one transaction**: if the third
@@ -220,8 +200,7 @@ The contract version is in the header of `partner-schema.gql` and follows semver
   enum members.
 - **Major** — anything removed, renamed, or made stricter.
 
-**Treat every enum as open.** New `Surface` codes, new `PositionState` values and new `EntityKind`
-members are minor revisions, so a client must not fail on an unrecognised member. Map unknown values to a fallback
+**Treat every enum as open.** New `Surface` codes and new `state` values are minor revisions, so a client must not fail on an unrecognised member. Map unknown values to a fallback
 and carry on.
 
 Breaking changes are announced before the endpoint changes, with both versions served in parallel
@@ -231,7 +210,7 @@ where practical.
 
 ### `Surface`
 
-Course surface a ball lies on. Unrelated to `Course.utmZone`.
+Course surface a ball lies on.
 
 | | | | |
 |---|---|---|---|
@@ -269,25 +248,15 @@ Position relative to the hole's centre line; meaningful on fairways and greens.
 
 ### `StrokeKind`
 
-`NORMAL` · `PROVISIONAL` · `PENALTY` · `DROP`
+`NORMAL` · `PENALTY` · `DROP`
 
-### `HoleReferenceType`
+### `HoleReference.type`
 
 `PIN` · `TEE`
 
-### `Hemisphere`
-
-`NORTH` · `SOUTH`
-
 ## 12. Introspection
 
-The served schema is generated and is more verbose than `partner-schema.gql` — it carries additional
-filter and ordering arguments, and root field names may differ in shape.
-
-**`partner-schema.gql` is normative** for field names, types, nullability and semantics, and the
-**mutations are final** as written. The **read and subscription operations** in `operations/` are
-final in what they return and mean, but their argument syntax will differ on the served endpoint —
-expect `args: {…}` wrappers, `where:` filters and a `cursor:` object on the stream, and read-side
-enums that may arrive under different type names with identical values. You receive the exact
-operation documents together with your credentials; send those rather than composing your own, since
-your credential is restricted to that pinned set.
+**`partner-schema.gql` is the served schema**, generated by introspecting the endpoint with a partner
+token, so introspecting it yourself gives the same schema. It carries the generated filter
+(`where:`), ordering (`order_by:`) and stream cursor (`cursor:`) arguments each root field accepts.
+Every document in `operations/` is validated against it.

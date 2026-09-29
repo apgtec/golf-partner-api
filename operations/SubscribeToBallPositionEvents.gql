@@ -1,35 +1,41 @@
-# Resumable ball-position stream. Queue semantics.
-#
-# Pass afterRevision: 0 to replay a round from the beginning; otherwise pass
-# the highest revision you have durably processed. Revisions increase across
-# both inserts and updates, so corrections and retractions arrive here too -
-# check `retracted` on every delivery.
-subscription Query(
-    $roundId: ID!
-    $afterRevision: Int!
-    $batchSize: Int
+# Every ball position revision of a round, in revision order, resuming after $afterRevision (0 replays
+# the round). Queue semantics: resumable and at-least-once. Persist the highest revision you processed.
+subscription SubscribeToBallPositionEvents(
+  $tournament: String!
+  $round: String!
+  $afterRevision: bigint!
+  $batchSize: Int!
 ) {
-    ballPositionEvents(roundId: $roundId, afterRevision: $afterRevision, batchSize: $batchSize) {
-        revision
-        strokeId
-        strokeExternalId
-        strokeNum
-        strokeKind
-        playerId
-        playerExternalId
-        groupId
-        groupExternalId
-        hole
-        holeOrder
-        easting
-        northing
-        elevation
-        surface
-        subSurface
-        state
-        inTheHole
-        retracted
-        observedAt
-        recordedAt
+  ballPositionEvents(
+    batch_size: $batchSize
+    cursor: {initial_value: {revision: $afterRevision}, ordering: ASC}
+    where: {round: {providerId: {_eq: $round}, tournament: {providerId: {_eq: $tournament}}}}
+  ) {
+    revision
+    strokeId
+    strokeProviderId
+    strokeNum
+    strokeKind
+    hole
+    holeOrder
+    player {
+      providerId
     }
+    group {
+      providerId
+    }
+    lat
+    lon
+    elevation
+    surface
+    subSurface
+    state
+    inTheHole
+    retracted
+    hatArgb
+    shirtArgb
+    pantsArgb
+    observedAt
+    recordedAt
+  }
 }

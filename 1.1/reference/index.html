@@ -1,0 +1,1603 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Contract and integration guide for exchanging golf ball positions and scorecard data with Bolt6">
+      
+      
+      
+        <link rel="canonical" href="https://apgtec.github.io/golf-partner-api/1.1/reference/">
+      
+      
+        <link rel="prev" href="../integration/">
+      
+      
+        <link rel="next" href="../schema/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Reference - Bolt6 Golf Data API</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Bolt6 Golf Data API" class="md-header__button md-logo" aria-label="Bolt6 Golf Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bolt6 Golf Data API
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="green"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="green"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/apgtec/golf-partner-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Start here
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../integration/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Integration guide
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../schema/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Schema
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../operations/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Operations
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Bolt6 Golf Data API" class="md-nav__button md-logo" aria-label="Bolt6 Golf Data API" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Bolt6 Golf Data API
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/apgtec/golf-partner-api" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Scope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ids
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Coordinates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Coordinates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vertical-datum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vertical datum
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-units" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Units
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-which-position-you-receive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Which position you receive
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-nullability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Nullability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Delivery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Delivery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#revisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cursors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cursors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rejected-payloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rejected payloads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transport-auth-and-validation-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transport, auth and validation errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Versioning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-vocabularies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Vocabularies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Vocabularies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Surface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subsurface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SubSurface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strokestatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StrokeStatus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strokekind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StrokeKind
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#holereferencetype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HoleReference.type
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-introspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Introspection
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Scope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ids
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Coordinates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Coordinates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vertical-datum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vertical datum
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-units" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Units
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-which-position-you-receive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Which position you receive
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-nullability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Nullability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Delivery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Delivery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#revisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cursors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cursors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rejected-payloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rejected payloads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transport-auth-and-validation-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transport, auth and validation errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Versioning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-vocabularies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Vocabularies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Vocabularies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Surface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subsurface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SubSurface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strokestatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StrokeStatus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strokekind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StrokeKind
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#holereferencetype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HoleReference.type
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-introspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Introspection
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h1>
+<p>Normative semantics for the Bolt6 golf data-exchange contract. Types live in
+<a href="../schema/"><code>partner-schema.gql</code></a>; this document carries what SDL cannot express. For
+worked examples see <a href="../integration/">Integration guide</a>.</p>
+<p><strong>Contract version 1.1.0-draft.</strong></p>
+<h2 id="1-scope">1. Scope<a class="headerlink" href="#1-scope" title="Permanent link">&para;</a></h2>
+<p>Bolt6 publishes golf ball positions, plus pin and tee positions.
+You publish the scorecard: tournament and round structure, course, groups, players, and stroke
+state.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Owner</th>
+<th>Carried by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ball positions</td>
+<td>Bolt6</td>
+<td><code>ballPositions</code>, <code>ballPositionEvents</code></td>
+</tr>
+<tr>
+<td>Pin and tee positions</td>
+<td>Bolt6</td>
+<td><code>holeReferences</code></td>
+</tr>
+<tr>
+<td>Course, holes, par</td>
+<td>you</td>
+<td><code>upsertCourse</code></td>
+</tr>
+<tr>
+<td>Tournament and rounds</td>
+<td>you</td>
+<td><code>upsertTournament</code>, <code>upsertRound</code></td>
+</tr>
+<tr>
+<td>Groups and players</td>
+<td>you</td>
+<td><code>upsertGroup</code></td>
+</tr>
+<tr>
+<td>Stroke state</td>
+<td>you</td>
+<td><code>upsertStroke</code>, <code>retractStroke</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ids">Ids<a class="headerlink" href="#ids" title="Permanent link">&para;</a></h3>
+<p>One rule: <strong>your id for everything.</strong></p>
+<ul>
+<li>Your <code>providerId</code> is the key you give an entity when you create it, and the one every reference you
+  make uses, in reads and in writes. Bolt6 keys the idempotent upsert on it within the parent (so a
+  retry after a lost response cannot create a duplicate): a tournament's is unique across your data, a
+  course's, round's and player's within their tournament, a group's and stroke's within their round.</li>
+<li>Read types also carry Bolt6's own ids (<code>id</code>, <code>strokeId</code>), opaque and stable. You never need them to
+  write; <code>strokeId</code> is the identity of a ball position, including for strokes you never reported (their
+  <code>strokeProviderId</code> is null).</li>
+</ul>
+<h2 id="2-coordinates">2. Coordinates<a class="headerlink" href="#2-coordinates" title="Permanent link">&para;</a></h2>
+<p><strong>One coordinate system: WGS84 latitude and longitude.</strong> Every position — ball, pin, tee — is
+<code>lat</code>, <code>lon</code> in decimal degrees (EPSG:4326), plus <code>elevation</code> in metres.</p>
+<p>These are ordinary geographic coordinates, so any standard geospatial library interprets them without
+configuration. Over the size of a course, a flat local approximation gives distances to the
+centimetre — see <a href="../integration/#8-computing-distances-on-your-side">use case 8</a>.</p>
+<h3 id="vertical-datum">Vertical datum<a class="headerlink" href="#vertical-datum" title="Permanent link">&para;</a></h3>
+<p><code>elevation</code> is height in metres, published as Bolt6 measures it.</p>
+<p>Elevation is accurate to roughly ±1 m absolute. Differences between two Bolt6 positions —
+ball-to-pin, for instance — are much tighter than that.</p>
+<h2 id="3-units">3. Units<a class="headerlink" href="#3-units" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Positions, elevations</td>
+<td>metres</td>
+</tr>
+<tr>
+<td>Colours</td>
+<td><code>0xRRGGBB</code> integer, alpha not carried</td>
+</tr>
+<tr>
+<td>Timestamps</td>
+<td>ISO 8601 with offset; UTC in what we send</td>
+</tr>
+</tbody>
+</table>
+<p>Convert distances for display on your side (<code>metres × 1.09361</code> for yards).</p>
+<h2 id="4-time">4. Time<a class="headerlink" href="#4-time" title="Permanent link">&para;</a></h2>
+<p>Three distinct times, named separately.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>observedAt</code></td>
+<td>when the observation was made, on the observing system's clock</td>
+</tr>
+<tr>
+<td><code>recordedAt</code></td>
+<td>when Bolt6 recorded it</td>
+</tr>
+<tr>
+<td><code>at</code></td>
+<td>when a reported stroke status happened, supplied by you</td>
+</tr>
+</tbody>
+</table>
+<p>Format rules:</p>
+<ul>
+<li>Send any ISO 8601 time with an offset (<code>2026-03-14T20:16:03.076Z</code>); we store UTC and send times back as <code>+00:00</code>.</li>
+<li>Fractional seconds to at most microsecond precision.</li>
+</ul>
+<p><strong>Stroke time.</strong> A stroke keeps the <code>at</code> of its first report; each report records its own <code>at</code>.</p>
+<h2 id="5-which-position-you-receive">5. Which position you receive<a class="headerlink" href="#5-which-position-you-receive" title="Permanent link">&para;</a></h2>
+<p>There is exactly one published position per stroke, identified by <code>strokeId</code>. Bolt6 may hold
+several candidates for it over time; you receive the best one, and a better one arrives as a new
+<code>revision</code> of the same <code>strokeId</code>. Ties break on <code>observedAt</code>, then <code>recordedAt</code>.</p>
+<p>Positions derived from your own stroke reports are not published back to you — a stroke's first
+published position is Bolt6's own. <code>state</code> tells you how much is known about it: see §6 and
+<a href="../integration/#6-handling-zone-only-positions">use case 6</a>.</p>
+<h2 id="6-nullability">6. Nullability<a class="headerlink" href="#6-nullability" title="Permanent link">&para;</a></h2>
+<p><strong><code>lat</code>, <code>lon</code> and <code>elevation</code> are nullable, and null together.</strong> <code>surface</code> is almost always
+populated: it is null only when Bolt6 has coordinates but no surface for them.</p>
+<table>
+<thead>
+<tr>
+<th><code>state</code></th>
+<th>Coordinates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VERIFIED</code></td>
+<td>present</td>
+</tr>
+<tr>
+<td><code>OVERRIDE</code></td>
+<td>present</td>
+</tr>
+<tr>
+<td><code>PREDICTED</code></td>
+<td>present</td>
+</tr>
+<tr>
+<td><code>ZONED</code></td>
+<td><strong>all null</strong></td>
+</tr>
+</tbody>
+</table>
+<p>A <code>ZONED</code> position means the surface is known and the coordinates are not. It is the normal state of
+a stroke between the ball coming to rest and being located — not rare, and not an error. Branch on
+<code>state</code> before reading coordinates, and never coerce null to <code>0</code>.</p>
+<h2 id="7-delivery">7. Delivery<a class="headerlink" href="#7-delivery" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Semantics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>subscription ballPositionEvents</code></td>
+<td>queue: ordered by <code>revision</code>, resumable, at-least-once</td>
+</tr>
+<tr>
+<td><code>subscription ballPositions</code></td>
+<td>state: current set on connect, then updates</td>
+</tr>
+<tr>
+<td><code>subscription holeReferences</code>, <code>rounds</code>, <code>groups</code>, <code>players</code>, <code>tournaments</code></td>
+<td>state</td>
+</tr>
+<tr>
+<td><code>query *</code></td>
+<td>point-in-time read</td>
+</tr>
+</tbody>
+</table>
+<h3 id="revisions">Revisions<a class="headerlink" href="#revisions" title="Permanent link">&para;</a></h3>
+<p><code>revision</code> increases on <strong>every</strong> change to a stroke's position — first fix, better fix, correction
+and retraction alike. That is what makes corrections and withdrawals deliverable through an ordered
+stream.</p>
+<ul>
+<li>A <strong>correction</strong> is the same <code>strokeId</code> with a higher <code>revision</code>. Key your state on <code>strokeId</code>
+  and upsert.</li>
+<li>A <strong>retraction</strong> is a new <code>revision</code> with <code>retracted: true</code>. Never a silent removal.</li>
+<li>You receive <strong>each stroke's latest revision</strong>: if a position changes more than once between two
+  deliveries, or while you are disconnected, only the latest is delivered.</li>
+</ul>
+<h3 id="cursors">Cursors<a class="headerlink" href="#cursors" title="Permanent link">&para;</a></h3>
+<p><code>ballPositionEvents</code> takes a cursor, <code>cursor: {initial_value: {revision: N}}</code>, and a required
+<code>batch_size</code>; for <code>N</code> you pass the highest revision you have durably processed. <code>0</code> replays the round
+from the beginning.</p>
+<p>Bolt6 keeps <strong>no per-consumer delivery state</strong>. Consequences:</p>
+<ul>
+<li>Several of your processes can consume one round concurrently with independent cursors.</li>
+<li>Losing your cursor costs a replay, never data.</li>
+<li>Persist the cursor <em>after</em> processing a batch, so a crash replays rather than skips.</li>
+</ul>
+<p>Delivery is <strong>at-least-once</strong>: after a reconnect you may see a revision again, so make application
+idempotent on <code>(strokeId, revision)</code>.</p>
+<h2 id="8-authentication">8. Authentication<a class="headerlink" href="#8-authentication" title="Permanent link">&para;</a></h2>
+<p>Bearer JWT on every request:</p>
+<div class="highlight"><pre><span></span><code>Authorization: Bearer &lt;jwt&gt;
+</code></pre></div>
+<p>For WebSocket subscriptions, send the same header inside the <code>connection_init</code> frame of the
+<code>graphql-transport-ws</code> handshake:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"connection_init"</span><span class="p">,</span><span class="w"> </span><span class="nt">"payload"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"Authorization"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer &lt;jwt&gt;"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>One credential covers both directions: it reads the published positions and sends your upserts.</p>
+<p>Tokens expire: we send you a new one before its <code>exp</code>. On an auth error (<code>invalid-jwt</code>), get a new
+token rather than retrying an expired one. Rotate credentials through the contact you were onboarded
+with.</p>
+<h2 id="9-errors">9. Errors<a class="headerlink" href="#9-errors" title="Permanent link">&para;</a></h2>
+<p>Two classes, and they need different handling.</p>
+<h3 id="rejected-payloads">Rejected payloads<a class="headerlink" href="#rejected-payloads" title="Permanent link">&para;</a></h3>
+<p>Every write returns a <code>WriteResult</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>accepted</code></td>
+<td><code>true</code> when the write was stored</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td>when <code>accepted</code> is <code>false</code>, the reason — an unknown parent, for instance; nothing was stored</td>
+</tr>
+</tbody>
+</table>
+<p><code>accepted: false</code> means something in the payload needs changing — the same call gets the same answer.
+Log, alert, fix before resending.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"upsertStroke"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown round 'R-9' in tournament 'T-2026-07'"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>Several mutations in one request execute <strong>in order, but not as one transaction</strong>: if the third
+fails, the first two are stored. Since every write is an idempotent upsert, simply retry the whole
+request once the problem is fixed.</p>
+<h3 id="transport-auth-and-validation-errors">Transport, auth and validation errors<a class="headerlink" href="#transport-auth-and-validation-errors" title="Permanent link">&para;</a></h3>
+<p>These arrive as GraphQL <code>errors</code> and <em>should</em> be retried with exponential backoff and jitter:
+connection failures, timeouts, expired or invalid tokens, rate limiting.</p>
+<p>A GraphQL <em>validation</em> error — an unknown field or a type mismatch — is a client bug and will not
+resolve on retry.</p>
+<h2 id="10-versioning">10. Versioning<a class="headerlink" href="#10-versioning" title="Permanent link">&para;</a></h2>
+<p>The contract version is in the header of <code>partner-schema.gql</code> and follows semver.</p>
+<ul>
+<li><strong>Patch</strong> — documentation only.</li>
+<li><strong>Minor</strong> — additive and backward compatible: new nullable fields, new optional input fields, new
+  enum members.</li>
+<li><strong>Major</strong> — anything removed, renamed, or made stricter.</li>
+</ul>
+<p><strong>Treat every enum as open.</strong> New <code>Surface</code> codes and new <code>state</code> values are minor revisions, so a client must not fail on an unrecognised member. Map unknown values to a fallback
+and carry on.</p>
+<p>Breaking changes are announced before the endpoint changes, with both versions served in parallel
+where practical.</p>
+<h2 id="11-vocabularies">11. Vocabularies<a class="headerlink" href="#11-vocabularies" title="Permanent link">&para;</a></h2>
+<h3 id="surface"><code>Surface</code><a class="headerlink" href="#surface" title="Permanent link">&para;</a></h3>
+<p>Course surface a ball lies on.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TEE</code> Tee box</td>
+<td><code>FWY</code> Fairway</td>
+<td><code>INT</code> Intermediate</td>
+<td><code>RGH</code> Rough</td>
+</tr>
+<tr>
+<td><code>GRN</code> Green</td>
+<td><code>GCL</code> Collar / margin</td>
+<td><code>BNK</code> Bunker</td>
+<td><code>WTR</code> Water</td>
+</tr>
+<tr>
+<td><code>NAT</code> Native area</td>
+<td><code>PTH</code> Path</td>
+<td><code>NMS</code> Non-movable structure</td>
+<td><code>OTH</code> Other</td>
+</tr>
+</tbody>
+</table>
+<p>If your own taxonomy is coarser, map it like this for <code>fromSurface</code>:</p>
+<table>
+<thead>
+<tr>
+<th>You have</th>
+<th>Send</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tee</td>
+<td><code>TEE</code></td>
+</tr>
+<tr>
+<td>fairway</td>
+<td><code>FWY</code></td>
+</tr>
+<tr>
+<td>first cut / intermediate rough / fairway edge</td>
+<td><code>INT</code></td>
+</tr>
+<tr>
+<td>rough</td>
+<td><code>RGH</code></td>
+</tr>
+<tr>
+<td>green</td>
+<td><code>GRN</code></td>
+</tr>
+<tr>
+<td>fringe / collar</td>
+<td><code>GCL</code></td>
+</tr>
+<tr>
+<td>any bunker</td>
+<td><code>BNK</code></td>
+</tr>
+<tr>
+<td>water / penalty area</td>
+<td><code>WTR</code></td>
+</tr>
+<tr>
+<td>native / unmaintained area</td>
+<td><code>NAT</code></td>
+</tr>
+<tr>
+<td>cart path / walk strip</td>
+<td><code>PTH</code></td>
+</tr>
+<tr>
+<td>building / wall / bridge / step</td>
+<td><code>NMS</code></td>
+</tr>
+<tr>
+<td>anything else</td>
+<td><code>OTH</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="subsurface"><code>SubSurface</code><a class="headerlink" href="#subsurface" title="Permanent link">&para;</a></h3>
+<p>Position relative to the hole's centre line; meaningful on fairways and greens.</p>
+<p><code>FL</code> fairway left · <code>FR</code> fairway right · <code>GFL</code> green front left · <code>GFR</code> green front right ·
+<code>GBL</code> green back left · <code>GBR</code> green back right</p>
+<h3 id="strokestatus"><code>StrokeStatus</code><a class="headerlink" href="#strokestatus" title="Permanent link">&para;</a></h3>
+<p><code>READY</code> addressed, not yet over the ball · <code>OVER_THE_BALL</code> standing over it · <code>HIT</code> played</p>
+<h3 id="strokekind"><code>StrokeKind</code><a class="headerlink" href="#strokekind" title="Permanent link">&para;</a></h3>
+<p><code>NORMAL</code> · <code>PENALTY</code> · <code>DROP</code></p>
+<h3 id="holereferencetype"><code>HoleReference.type</code><a class="headerlink" href="#holereferencetype" title="Permanent link">&para;</a></h3>
+<p><code>PIN</code> · <code>TEE</code></p>
+<h2 id="12-introspection">12. Introspection<a class="headerlink" href="#12-introspection" title="Permanent link">&para;</a></h2>
+<p><strong><code>partner-schema.gql</code> is the served schema</strong>, generated by introspecting the endpoint with a partner
+token, so introspecting it yourself gives the same schema. It carries the generated filter
+(<code>where:</code>), ordering (<code>order_by:</code>) and stream cursor (<code>cursor:</code>) arguments each root field accepts.
+Every document in <code>operations/</code> is validated against it.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "content.code.copy", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

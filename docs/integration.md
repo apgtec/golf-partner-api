@@ -354,7 +354,7 @@ together.
   "lat": null,
   "lon": null,
   "elevation": null,
-  "surface": "BNK",
+  "surface": "GBK",
   "subSurface": null,
   "state": "ZONED",
   "retracted": false,
@@ -408,7 +408,7 @@ A withdrawn stroke's position arrives as a new revision with `retracted: true`. 
 disappearance, so a client that only ever adds rows will show a ball that is no longer in play.
 
 ```json
-{ "revision": 48191, "strokeId": 88307, "retracted": true, "state": "ZONED", "surface": "BNK" }
+{ "revision": 48191, "strokeId": 88307, "retracted": true, "state": "ZONED", "surface": "GBK" }
 ```
 
 Treat `retracted: true` as authoritative and remove the record.

@@ -1671,7 +1671,9 @@ enum StrokeStatus {
 
 enum Surface {
   BNK
+  FBK
   FWY
+  GBK
   GCL
   GRN
   INT

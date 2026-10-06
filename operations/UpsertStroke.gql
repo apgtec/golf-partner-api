@@ -5,5 +5,6 @@ mutation UpsertStroke($input: StrokeInput!) {
   upsertStroke(input: $input) {
     accepted
     message
+    id
   }
 }

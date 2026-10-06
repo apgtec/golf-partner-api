@@ -6,8 +6,8 @@ mutation SetupRound(
   $round: RoundInput!
   $group: GroupInput!
 ) {
-  tournament: upsertTournament(input: $tournament) { accepted message }
-  course: upsertCourse(input: $course) { accepted message }
-  round: upsertRound(input: $round) { accepted message }
-  group: upsertGroup(input: $group) { accepted message }
+  tournament: upsertTournament(input: $tournament) { accepted message id }
+  course: upsertCourse(input: $course) { accepted message id }
+  round: upsertRound(input: $round) { accepted message id }
+  group: upsertGroup(input: $group) { accepted message id }
 }

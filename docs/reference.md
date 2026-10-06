@@ -29,8 +29,9 @@ One rule: **your id for everything.**
   make uses, in reads and in writes. Bolt6 keys the idempotent upsert on it within the parent (so a
   retry after a lost response cannot create a duplicate): a tournament's is unique across your data, a
   course's, round's and player's within their tournament, a group's and stroke's within their round.
-- Read types also carry Bolt6's own ids (`id`, `strokeId`), opaque and stable. You never need them to
-  write; `strokeId` is the identity of a ball position, including for strokes you never reported (their
+- Bolt6's own ids (`id`, `strokeId`) are opaque and stable. Every write returns the `id` of what it
+  stored, and read types carry them too, so you can keep a map if you want one; you never need them to
+  write. `strokeId` is the identity of a ball position, including for strokes you never reported (their
   `strokeProviderId` is null).
 
 ## 2. Coordinates
@@ -171,12 +172,13 @@ Every write returns a `WriteResult`:
 |---|---|
 | `accepted` | `true` when the write was stored |
 | `message` | when `accepted` is `false`, the reason — an unknown parent, for instance; nothing was stored |
+| `id` | Bolt6's id of what was stored — the tournament, course, round, group or stroke (`strokeId` on its ball positions); null when `accepted` is `false` |
 
 `accepted: false` means something in the payload needs changing — the same call gets the same answer.
 Log, alert, fix before resending.
 
 ```json
-{ "data": { "upsertStroke": { "accepted": false, "message": "unknown round 'R-9' in tournament 'T-2026-07'" } } }
+{ "data": { "upsertStroke": { "accepted": false, "message": "unknown round 'R-9' in tournament 'T-2026-07'", "id": null } } }
 ```
 
 Several mutations in one request execute **in order, but not as one transaction**: if the third

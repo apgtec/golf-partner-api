@@ -3,5 +3,6 @@ mutation UpsertRound($input: RoundInput!) {
   upsertRound(input: $input) {
     accepted
     message
+    id
   }
 }

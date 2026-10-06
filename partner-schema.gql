@@ -1786,6 +1786,7 @@ enum Tournament_select_column {
 
 type WriteResult {
   accepted: Boolean!
+  id: bigint
   message: String
 }
 

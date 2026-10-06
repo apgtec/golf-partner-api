@@ -84,13 +84,13 @@ curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
   -H "Authorization: Bearer $BOLT6_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{
-    "query": "mutation($input: TournamentInput!) { upsertTournament(input: $input) { accepted message } }",
+    "query": "mutation($input: TournamentInput!) { upsertTournament(input: $input) { accepted message id } }",
     "variables": { "input": { "providerId": "T-2026-07", "name": "Sydney Invitational", "startDate": "2026-03-12", "endDate": "2026-03-15" } }
   }'
 ```
 
 ```json
-{ "data": { "upsertTournament": { "accepted": true, "message": null } } }
+{ "data": { "upsertTournament": { "accepted": true, "message": null, "id": 42 } } }
 ```
 
 That is the pattern for the whole integration: you name everything by your own id, and refer to it by

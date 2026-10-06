@@ -154,7 +154,7 @@ curl -s https://<tour>.hasura.bolt6.cloud/v1/graphql \
         "lat": null,
         "lon": null,
         "elevation": null,
-        "surface": "BNK",
+        "surface": "GBK",
         "state": "ZONED",
         "retracted": false,
         "observedAt": "2026-03-14T20:16:41.5+00:00"

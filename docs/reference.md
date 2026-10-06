@@ -217,8 +217,11 @@ Course surface a ball lies on.
 | | | | |
 |---|---|---|---|
 | `TEE` Tee box | `FWY` Fairway | `INT` Intermediate | `RGH` Rough |
-| `GRN` Green | `GCL` Collar / margin | `BNK` Bunker | `WTR` Water |
-| `NAT` Native area | `PTH` Path | `NMS` Non-movable structure | `OTH` Other |
+| `GRN` Green | `GCL` Collar / margin | `FBK` Fairway bunker | `GBK` Greenside bunker |
+| `BNK` Bunker, kind unknown | `WTR` Water | `NAT` Native area | `PTH` Path |
+| `NMS` Non-movable structure | `OTH` Other | | |
+
+A bunker is `FBK` or `GBK` whenever its kind is known. `BNK` means a bunker of unknown kind.
 
 If your own taxonomy is coarser, map it like this for `fromSurface`:
 
@@ -230,7 +233,9 @@ If your own taxonomy is coarser, map it like this for `fromSurface`:
 | rough | `RGH` |
 | green | `GRN` |
 | fringe / collar | `GCL` |
-| any bunker | `BNK` |
+| fairway bunker, waste bunker | `FBK` |
+| greenside bunker, grass bunker | `GBK` |
+| a bunker, kind unknown | `BNK` |
 | water / penalty area | `WTR` |
 | native / unmaintained area | `NAT` |
 | cart path / walk strip | `PTH` |

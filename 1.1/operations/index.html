@@ -842,6 +842,7 @@ schema on every change. Fill in the variables shown in the <a href="../integrati
 <span class="w">  </span><span class="n">upsertTournament</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">accepted</span>
 <span class="w">    </span><span class="n">message</span>
+<span class="w">    </span><span class="n">id</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -852,6 +853,7 @@ schema on every change. Fill in the variables shown in the <a href="../integrati
 <span class="w">  </span><span class="n">upsertCourse</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">accepted</span>
 <span class="w">    </span><span class="n">message</span>
+<span class="w">    </span><span class="n">id</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -861,6 +863,7 @@ schema on every change. Fill in the variables shown in the <a href="../integrati
 <span class="w">  </span><span class="n">upsertRound</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">accepted</span>
 <span class="w">    </span><span class="n">message</span>
+<span class="w">    </span><span class="n">id</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -872,6 +875,7 @@ schema on every change. Fill in the variables shown in the <a href="../integrati
 <span class="w">  </span><span class="n">upsertGroup</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">accepted</span>
 <span class="w">    </span><span class="n">message</span>
+<span class="w">    </span><span class="n">id</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -884,10 +888,10 @@ schema on every change. Fill in the variables shown in the <a href="../integrati
 <span class="w">  </span><span class="nv">$round</span><span class="p">:</span><span class="w"> </span><span class="nc">RoundInput</span><span class="p">!</span>
 <span class="w">  </span><span class="nv">$group</span><span class="p">:</span><span class="w"> </span><span class="nc">GroupInput</span><span class="p">!</span>
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nl">tournament</span><span class="p">:</span><span class="w"> </span><span class="n">upsertTournament</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$tournament</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">accepted</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="p">}</span>
-<span class="w">  </span><span class="nl">course</span><span class="p">:</span><span class="w"> </span><span class="n">upsertCourse</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$course</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">accepted</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="p">}</span>
-<span class="w">  </span><span class="nl">round</span><span class="p">:</span><span class="w"> </span><span class="n">upsertRound</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$round</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">accepted</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="p">}</span>
-<span class="w">  </span><span class="nl">group</span><span class="p">:</span><span class="w"> </span><span class="n">upsertGroup</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$group</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">accepted</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nl">tournament</span><span class="p">:</span><span class="w"> </span><span class="n">upsertTournament</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$tournament</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">accepted</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nl">course</span><span class="p">:</span><span class="w"> </span><span class="n">upsertCourse</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$course</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">accepted</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nl">round</span><span class="p">:</span><span class="w"> </span><span class="n">upsertRound</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$round</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">accepted</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nl">group</span><span class="p">:</span><span class="w"> </span><span class="n">upsertGroup</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$group</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">accepted</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="upsertstroke">UpsertStroke<a class="headerlink" href="#upsertstroke" title="Permanent link">&para;</a></h2>
@@ -898,6 +902,7 @@ schema on every change. Fill in the variables shown in the <a href="../integrati
 <span class="w">  </span><span class="n">upsertStroke</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">accepted</span>
 <span class="w">    </span><span class="n">message</span>
+<span class="w">    </span><span class="n">id</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -907,6 +912,7 @@ schema on every change. Fill in the variables shown in the <a href="../integrati
 <span class="w">  </span><span class="n">retractStroke</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="nv">$input</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">accepted</span>
 <span class="w">    </span><span class="n">message</span>
+<span class="w">    </span><span class="n">id</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>

@@ -1216,8 +1216,9 @@ state.</p>
   make uses, in reads and in writes. Bolt6 keys the idempotent upsert on it within the parent (so a
   retry after a lost response cannot create a duplicate): a tournament's is unique across your data, a
   course's, round's and player's within their tournament, a group's and stroke's within their round.</li>
-<li>Read types also carry Bolt6's own ids (<code>id</code>, <code>strokeId</code>), opaque and stable. You never need them to
-  write; <code>strokeId</code> is the identity of a ball position, including for strokes you never reported (their
+<li>Bolt6's own ids (<code>id</code>, <code>strokeId</code>) are opaque and stable. Every write returns the <code>id</code> of what it
+  stored, and read types carry them too, so you can keep a map if you want one; you never need them to
+  write. <code>strokeId</code> is the identity of a ball position, including for strokes you never reported (their
   <code>strokeProviderId</code> is null).</li>
 </ul>
 <h2 id="2-coordinates">2. Coordinates<a class="headerlink" href="#2-coordinates" title="Permanent link">&para;</a></h2>
@@ -1405,11 +1406,15 @@ with.</p>
 <td><code>message</code></td>
 <td>when <code>accepted</code> is <code>false</code>, the reason — an unknown parent, for instance; nothing was stored</td>
 </tr>
+<tr>
+<td><code>id</code></td>
+<td>Bolt6's id of what was stored — the tournament, course, round, group or stroke (<code>strokeId</code> on its ball positions); null when <code>accepted</code> is <code>false</code></td>
+</tr>
 </tbody>
 </table>
 <p><code>accepted: false</code> means something in the payload needs changing — the same call gets the same answer.
 Log, alert, fix before resending.</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"upsertStroke"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown round 'R-9' in tournament 'T-2026-07'"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"upsertStroke"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"accepted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown round 'R-9' in tournament 'T-2026-07'"</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p>Several mutations in one request execute <strong>in order, but not as one transaction</strong>: if the third
 fails, the first two are stored. Since every write is an idempotent upsert, simply retry the whole

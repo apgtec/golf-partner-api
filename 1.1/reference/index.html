@@ -1458,17 +1458,24 @@ where practical.</p>
 <tr>
 <td><code>GRN</code> Green</td>
 <td><code>GCL</code> Collar / margin</td>
-<td><code>BNK</code> Bunker</td>
-<td><code>WTR</code> Water</td>
+<td><code>FBK</code> Fairway bunker</td>
+<td><code>GBK</code> Greenside bunker</td>
 </tr>
 <tr>
+<td><code>BNK</code> Bunker, kind unknown</td>
+<td><code>WTR</code> Water</td>
 <td><code>NAT</code> Native area</td>
 <td><code>PTH</code> Path</td>
+</tr>
+<tr>
 <td><code>NMS</code> Non-movable structure</td>
 <td><code>OTH</code> Other</td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
+<p>A bunker is <code>FBK</code> or <code>GBK</code> whenever its kind is known. <code>BNK</code> means a bunker of unknown kind.</p>
 <p>If your own taxonomy is coarser, map it like this for <code>fromSurface</code>:</p>
 <table>
 <thead>
@@ -1503,7 +1510,15 @@ where practical.</p>
 <td><code>GCL</code></td>
 </tr>
 <tr>
-<td>any bunker</td>
+<td>fairway bunker, waste bunker</td>
+<td><code>FBK</code></td>
+</tr>
+<tr>
+<td>greenside bunker, grass bunker</td>
+<td><code>GBK</code></td>
+</tr>
+<tr>
+<td>a bunker, kind unknown</td>
 <td><code>BNK</code></td>
 </tr>
 <tr>

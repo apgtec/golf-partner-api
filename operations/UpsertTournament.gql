@@ -3,5 +3,6 @@ mutation UpsertTournament($input: TournamentInput!) {
   upsertTournament(input: $input) {
     accepted
     message
+    id
   }
 }

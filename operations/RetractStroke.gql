@@ -3,5 +3,6 @@ mutation RetractStroke($input: RetractStrokeInput!) {
   retractStroke(input: $input) {
     accepted
     message
+    id
   }
 }

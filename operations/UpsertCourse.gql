@@ -4,5 +4,6 @@ mutation UpsertCourse($input: CourseInput!) {
   upsertCourse(input: $input) {
     accepted
     message
+    id
   }
 }

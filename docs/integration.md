@@ -43,6 +43,9 @@ Parents come first, so run setup in that order, and re-send whenever something c
 the response of an earlier call, so several can go in one request as aliases
 ([`SetupRound`](operations.md#setupround)); they run in order.
 
+Each write also returns Bolt6's `id` for what it stored (`strokeId` for a stroke), the same `id` the
+reads carry. Keep it if you want to map your ids to ours; nothing requires it.
+
 ---
 
 ## 1. Tournament
@@ -63,7 +66,7 @@ Send once before the tournament, and again whenever it changes.
 ```
 
 ```json
-{ "data": { "upsertTournament": { "accepted": true, "message": null } } }
+{ "data": { "upsertTournament": { "accepted": true, "message": null, "id": 42 } } }
 ```
 
 ---
@@ -91,7 +94,7 @@ added).
 ```
 
 ```json
-{ "data": { "upsertCourse": { "accepted": true, "message": null } } }
+{ "data": { "upsertCourse": { "accepted": true, "message": null, "id": 57 } } }
 ```
 
 - Par is optional but recommended; we pass it through to downstream consumers.
@@ -105,7 +108,7 @@ Now the rounds, one call each, each pointing at a course by its `providerId`:
 ```
 
 ```json
-{ "data": { "upsertRound": { "accepted": true, "message": null } } }
+{ "data": { "upsertRound": { "accepted": true, "message": null, "id": 168 } } }
 ```
 
 - **Every group and stroke is keyed by a round** — `R-3` for the rest of this guide.
@@ -157,7 +160,7 @@ Send when the draw is published, and again on any change (a withdrawal, a player
 ```
 
 ```json
-{ "data": { "upsertGroup": { "accepted": true, "message": null } } }
+{ "data": { "upsertGroup": { "accepted": true, "message": null, "id": 2291 } } }
 ```
 
 - **Players are per tournament.** The same player `providerId` in another round's groups is the same
@@ -200,7 +203,7 @@ are no coordinate fields on this input.
 ```
 
 ```json
-{ "data": { "upsertStroke": { "accepted": true, "message": null } } }
+{ "data": { "upsertStroke": { "accepted": true, "message": null, "id": 88301 } } }
 ```
 
 `tournament`, `round` and `player` are the ids you sent in the earlier upserts; `providerId` is your
@@ -422,7 +425,7 @@ onward, so every downstream consumer learns about it.
 ```
 
 ```json
-{ "data": { "retractStroke": { "accepted": true, "message": null } } }
+{ "data": { "retractStroke": { "accepted": true, "message": null, "id": 88301 } } }
 ```
 
 The stroke is named by the ids you reported it with. To *correct* rather than withdraw a stroke,
@@ -571,7 +574,8 @@ Two failure classes, handled differently — one is worth retrying, the other is
   "data": {
     "upsertStroke": {
       "accepted": false,
-      "message": "unknown round 'R-9' in tournament 'T-2026-07'"
+      "message": "unknown round 'R-9' in tournament 'T-2026-07'",
+      "id": null
     }
   }
 }
